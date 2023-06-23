@@ -1,15 +1,15 @@
 export PATH := ..\bin\:$(PATH)
-CC= WDC816CC
-LD= wdclink
-CAD= cadius
+CC=WDC816CC
+LD=wdclink
+CAD=cadius
 CFLAGS= -i ../include/ -ML -SF -SI -SS
 LIB= ../lib/
 
 all: mydisk.po
 
 clean:
-	rm *.obj
-	rm *.omf
+	del *.obj
+	del *.omf
 
 startup.obj: startup.c
 	$(CC) $(CFLAGS) startup.c 
@@ -30,8 +30,8 @@ printf.obj: printf.c printf.h
 #	$(CC) $(CFLAGS) shit.c
 
 mydisk.po: out.omf
-	MSYS2_ARG_CONV_EXCL=\* $(CAD) deletefile mydisk.po /NEW.DISK/OUT.OMF
-	MSYS2_ARG_CONV_EXCL=\* $(CAD) addfile mydisk.po /NEW.DISK/ \.\\out.omf
+	$(CAD) deletefile mydisk.po /NEW.DISK/OUT.OMF
+	$(CAD) addfile mydisk.po /NEW.DISK/ .\out.omf
 
 emulator: mydisk.po
 	emulator.bat

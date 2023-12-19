@@ -2,12 +2,9 @@
 #pragma section code = mainy
 #pragma section data = mainyData
 void setPalette(int colorNum, int red, int green, int blue);
-static far long crap = 0x321;
-static far char t = '4';
-
 #include "printf.h"
 #include "text.h"
-
+char message[] = "Hello there";
 void main(void)
 {
 	int i = 0;
@@ -17,7 +14,6 @@ void main(void)
 	char *scanControl = (char *)0x019D00;
 	char *video = (char *)0x012000;
 	char **testMemory;
-	char* message = "Hello there";
 	//__TLStartUp();
 
 	// enable super high res mode, maybe
@@ -73,12 +69,14 @@ void main(void)
 	{
 		video[i] = 0x0F; // alternate green and red
 	}
-
-	//printf(message);
-	for(i =0; i< 32000; i++)
-	{
-		printf("%d --Hello there Vuth!!!\n", (long)i);
-	}
+	printf(message);
+	printf("\n");
+	printf("Hello there zylanx! %d", (long)1234);
+	printf("\n");
+	//for(i =0; i< 32000; i++)
+	//{
+		//printf("%d --Hello there Vuth!!!\n", (long)i);
+	//}
 	
 
 	// do nothing

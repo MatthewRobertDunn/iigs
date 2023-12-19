@@ -8,8 +8,8 @@ LIB= ../lib/
 all: mydisk.po
 
 clean:
-	del *.obj
-	del *.omf
+	rm *.obj
+	rm *.omf
 
 startup.obj: startup.c
 	$(CC) $(CFLAGS) startup.c 
@@ -25,6 +25,10 @@ text.obj: text.c font.h
 
 printf.obj: printf.c printf.h
 	$(CC) $(CFLAGS) printf.c
+
+chacha20.obj: chacha20.c chacha20.h
+	$(CC) $(CFLAGS) chacha20.c
+
 
 #shit.obj: shit.c
 #	$(CC) $(CFLAGS) shit.c

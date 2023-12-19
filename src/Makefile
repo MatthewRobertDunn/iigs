@@ -17,8 +17,8 @@ startup.obj: startup.c
 main.obj: main.c toolbox.h text.h text.obj printf.obj startup.obj
 	$(CC) $(CFLAGS) main.c 
 
-out.omf: startup.obj main.obj text.obj printf.obj
-	$(LD) -L $(LIB)  -l cl -X startup.obj main.obj text.obj printf.obj
+out.omf: startup.obj main.obj text.obj printf.obj chacha20.obj
+	$(LD) -L $(LIB)  -l cl -X startup.obj main.obj text.obj printf.obj chacha20.obj
 
 text.obj: text.c font.h
 	$(CC) $(CFLAGS) text.c

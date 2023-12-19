@@ -4,7 +4,11 @@
 void setPalette(int colorNum, int red, int green, int blue);
 #include "printf.h"
 #include "text.h"
+#include "chacha20.h"
 char message[] = "Hello there";
+
+uint8_t key[] = "58994083179912377936593775884845";
+uint8_t nonce[] = "468133307133";
 void main(void)
 {
 	int i = 0;
@@ -14,6 +18,8 @@ void main(void)
 	char *scanControl = (char *)0x019D00;
 	char *video = (char *)0x012000;
 	char **testMemory;
+	uint8_t randomByte;
+	struct chacha20_context ctx;
 	//__TLStartUp();
 
 	// enable super high res mode, maybe
@@ -71,12 +77,19 @@ void main(void)
 	}
 	printf(message);
 	printf("\n");
-	printf("Hello there zylanx! %d", (long)1234);
+	printf("About to gen blocks %d", (long)1234);
 	printf("\n");
-	//for(i =0; i< 32000; i++)
-	//{
-		//printf("%d --Hello there Vuth!!!\n", (long)i);
-	//}
+
+
+
+	
+	chacha20_ietf_init(&ctx, key, nonce);
+	
+	for(i =0; i< 32000; i++)
+	{
+		chacha20_next_random(&ctx, &randomByte, 1);
+		printf("%d,", (long)randomByte);
+	}
 	
 
 	// do nothing

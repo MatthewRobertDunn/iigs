@@ -1,12 +1,20 @@
- code = chacha
-#pragma section data = chachadata
+#ifndef MODERN_MODE
+#pragma section code = chacha20
+#pragma section data = chacha20data
+#endif
 #include "chacha20.h"
+
+#define MIN(a,b) (((a)<(b))?(a):(b))
+#define MAX(a,b) (((a)>(b))?(a):(b))
+
+int chacha20_ietf_increment_counter(struct chacha20_context* ctx);
+
 uint32_t rotl(uint32_t x, int n)
 {
     return (x << n) | (x >> (32 - n));
 }
 
-quarter_round(uint32_t x[], int a, int b, int c, int d)
+void quarter_round(uint32_t x[], int a, int b, int c, int d)
 {
     x[a] += x[b];
     x[d] = rotl(x[d] ^ x[a], 16);
@@ -34,6 +42,13 @@ void unpack4(uint32_t src, uint8_t *dst)
     dst[1] = (src >> 1 * 8) & 0xff;
     dst[2] = (src >> 2 * 8) & 0xff;
     dst[3] = (src >> 3 * 8) & 0xff;
+}
+
+void chacha20_serialize(uint32_t inStream[], uint8_t outStream[]) {
+    int i;
+    for (i = 0; i < 16; i++) {
+        unpack4(inStream[i], &outStream[i*4]);
+    }
 }
 
 // This function takes a chacha20 context, produces 64 bytes of random stream output
@@ -67,9 +82,63 @@ void chacha20_block_next(struct chacha20_context *ctx, uint32_t stream[])
     {
         stream[i] += ctx->state[i];
     }
+
+    chacha20_ietf_increment_counter(ctx);
 }
 
-bool chacha20_ietf_increment_counter(struct chacha20_context *ctx)
+void chacha20_next(struct chacha20_context* ctx)
+{
+    uint32_t streamUint32[16];
+    chacha20_block_next(ctx, streamUint32);
+    chacha20_serialize(streamUint32, ctx->stream);
+    ctx->bytes_remaining = 64;
+}
+
+
+uint32_t chacha20_get_stream_bytes_left_in_context(struct chacha20_context* ctx, uint8_t output[], uint32_t count) {
+    uint32_t i;
+    //Try to get as many bytes as we can up to as many are left in the context
+    uint32_t remaining = MIN(ctx->bytes_remaining, count);
+    uint32_t start = 64 - ctx->bytes_remaining;
+
+    for (i = 0; i < remaining; i++) {
+        output[i] = ctx->stream[i + start];
+    }
+
+    //Remove the bytes we just used.
+    ctx->bytes_remaining -= i;   
+
+    //Return how many we actually were able to produce
+    return i;
+}
+
+
+//populates output with count random bytes.
+void chacha20_next_random(struct chacha20_context* ctx, uint8_t output[], uint32_t count) 
+{
+    uint32_t total = 0;
+    uint32_t generated = 0;
+    while (total < count)
+    {
+        if (ctx->bytes_remaining == 0) {
+            //There are no bytes left to use in our context
+            chacha20_next(ctx); //Make some more
+        }
+        //Get however many bytes are left in our context, could be up to 64
+        generated = chacha20_get_stream_bytes_left_in_context(ctx, &output[total], count - total);
+
+        total += generated;
+    }
+}
+
+
+void encrypt(struct chacha20_context* ctx, uint8_t plainText, uint8_t cipherText[], uint32_t count)
+{
+
+
+}
+
+int chacha20_ietf_increment_counter(struct chacha20_context *ctx)
 {
     if (ctx->state[12] == 0xFFFFFFFF)
     {
@@ -100,12 +169,13 @@ void chacha20_ietf_init(struct chacha20_context *ctx, uint8_t *key, uint8_t *non
     ctx->state[11] = pack4(&key[7 * 4]);
 
     // counter
-    ctx->state[12] = 0;
+    ctx->state[12] = 1;  //IETF inits counter at 1
 
     // nonce
     ctx->state[13] = pack4(&nonce[0 * 4]);
     ctx->state[14] = pack4(&nonce[1 * 4]);
     ctx->state[15] = pack4(&nonce[2 * 4]);
 
+    ctx->bytes_remaining = 0;
     // All done
 }

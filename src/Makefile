@@ -2,7 +2,7 @@ export PATH := ..\bin\:$(PATH)
 CC=WDC816CC
 LD=wdclink
 CAD=cadius
-CFLAGS= -i ../include/ -ML -SF -SI -SS
+CFLAGS= -i ../include/ -ML -SF -SI -SP
 LIB= ../lib/
 
 all: mydisk.po

@@ -1,10 +1,6 @@
 #ifndef _CHACHA20_H_
 #define _CHACHA20_H_
-
-typedef unsigned long int uint32_t;
-typedef unsigned char uint8_t;
-#define false 0
-#define true  1
+#include "types.h"
 #define CHACHA_ROUNDS 20
 
 struct chacha20_context

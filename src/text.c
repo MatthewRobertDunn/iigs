@@ -3,7 +3,14 @@
 #include "font.h"
 #define LINE_HEIGHT 160
 #define CHAR_WIDTH 4
+#define CHAR_HEIGHT 8
 #define SCREEN_MAX 32000
+#define ROW_MAX 25
+#define COLUMN_MAX 40
+
+static unsigned far int cursor = 0;
+static unsigned far int row = 0;
+static unsigned far int column = 0;
 
 void draw_line(char charLine, unsigned int offset, unsigned char color);
 
@@ -44,16 +51,16 @@ void draw_line(char charLine, unsigned int offset, unsigned char color)
 	}
 }
 
-static unsigned far int cursor = 0;
-
 void _newline()
 {
-	cursor -= (cursor % LINE_HEIGHT);
-	cursor += LINE_HEIGHT * 8;
-	if (cursor >= SCREEN_MAX)
-	{
-		cursor = 0;
+	row += 1;
+	column = 0;
+
+	if(row >= ROW_MAX){
+		row = 0;
 	}
+
+	cursor = (row * LINE_HEIGHT * CHAR_HEIGHT);
 }
 
 // Draws a character to the screen in a given color, keep strack of the cursor position
@@ -82,8 +89,9 @@ void _putchar(char character, unsigned char color)
 	draw_line(template[7], cursor + LINE_HEIGHT * 7, color);
 	// Advance the cursor 8 pixels (4 bytes)
 	cursor += CHAR_WIDTH;
+	column += 1;
 	// If we got to the end of the line move to the next line
-	if (cursor % LINE_HEIGHT == 0)
+	if (column >= COLUMN_MAX)
 	{
 		_newline();
 	}

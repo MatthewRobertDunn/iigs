@@ -8,7 +8,7 @@ void setPalette(int colorNum, int red, int green, int blue);
 char message[] = "Hello there";
 
 uint8_t key[] = "58994083179912377936593775884845";
-uint8_t nonce[] = "468133307133";
+uint8_t nonce[] = "468133307134";
 void main(void)
 {
 	int i = 0;
@@ -71,27 +71,13 @@ void main(void)
 		setPalette(i, i, i, i);
 	}
 
-	for (i = 0; i < 32000; i++)
-	{
-		video[i] = 0x0F; // alternate green and red
-	}
-	printf(message);
-	printf("\n");
-	printf("About to gen blocks %d", (long)1234);
-	printf("\n");
-
-
-
-	
 	chacha20_ietf_init(&ctx, key, nonce);
-	
-	for(i =0; i< 32000; i++)
+	for (i = 0; i < 32000; i+=64)
 	{
-		chacha20_next_random(&ctx, &randomByte, 1);
-		printf("%d,", (long)randomByte);
+		//video[i] = 0x0F; // alternate green and red
+		chacha20_block_next(&ctx, video + i);
 	}
 	
-
 	// do nothing
 	while (1)
 	{

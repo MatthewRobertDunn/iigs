@@ -54,6 +54,12 @@ void draw_line(char charLine, unsigned int offset, unsigned char color)
 	}
 }
 
+void _scroll_line(){
+	char *video = (char *)VIDEO;
+	memcpy(video,video + ROW_HEIGHT,ROW_HEIGHT * ROW_MAX);
+}
+
+
 void _newline()
 {
 	row += 1;

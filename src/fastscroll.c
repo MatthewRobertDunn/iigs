@@ -162,7 +162,7 @@ START:
         SEC
         SBC #($0500-$FF-$FF)
 
-        CMP #($20FF+($FF*125))
+        CMP #($20FF+($FF*120))
         BEQ END
         BRL START
 

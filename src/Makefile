@@ -14,11 +14,11 @@ clean:
 startup.obj: startup.c
 	$(CC) $(CFLAGS) startup.c 
 
-main.obj: main.c toolbox.h text.h text.obj printf.obj startup.obj
+main.obj: main.c 
 	$(CC) $(CFLAGS) main.c 
 
-out.omf: startup.obj main.obj text.obj printf.obj chacha20.obj
-	$(LD) -L $(LIB)  -l cl -X startup.obj main.obj text.obj printf.obj chacha20.obj
+out.omf: startup.obj main.obj text.obj printf.obj chacha20.obj fastscroll.obj
+	$(LD) -L $(LIB)  -l cl -X startup.obj main.obj text.obj printf.obj chacha20.obj fastscroll.obj
 
 text.obj: text.c font.h
 	$(CC) $(CFLAGS) text.c
@@ -28,6 +28,12 @@ printf.obj: printf.c printf.h
 
 chacha20.obj: chacha20.c chacha20.h
 	$(CC) $(CFLAGS) chacha20.c
+
+blake2s.obj: blake2s.c blake2s.h
+	$(CC) $(CFLAGS) blake2s.c	
+
+fastscroll.obj: fastscroll.c fastscroll.h
+	$(CC) $(CFLAGS) fastscroll.c		
 
 
 #shit.obj: shit.c

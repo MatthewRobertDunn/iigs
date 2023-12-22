@@ -1,13 +1,16 @@
 #pragma section code = text
 #pragma section data = textdata
 #include "font.h"
+#include <string.h>
+#include "fastscroll.h"
 #define LINE_HEIGHT 160
 #define CHAR_WIDTH 4
 #define CHAR_HEIGHT 8
 #define SCREEN_MAX 32000
 #define ROW_MAX 25
 #define COLUMN_MAX 40
-
+#define VIDEO 0x012000
+#define ROW_HEIGHT LINE_HEIGHT * CHAR_HEIGHT
 static unsigned far int cursor = 0;
 static unsigned far int row = 0;
 static unsigned far int column = 0;
@@ -16,7 +19,7 @@ void draw_line(char charLine, unsigned int offset, unsigned char color);
 
 void draw_line(char charLine, unsigned int offset, unsigned char color)
 {
-	char *video = (char *)0x012000;
+	char *video = (char *)VIDEO;
 	char *drawStart;
 	int x;
 	char out = 0;
@@ -57,7 +60,8 @@ void _newline()
 	column = 0;
 
 	if(row >= ROW_MAX){
-		row = 0;
+		row = ROW_MAX - 1;
+		fastScroll();
 	}
 
 	cursor = (row * LINE_HEIGHT * CHAR_HEIGHT);

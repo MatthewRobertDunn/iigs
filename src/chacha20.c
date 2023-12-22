@@ -7,6 +7,7 @@
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
+
 int chacha20_ietf_increment_counter(struct chacha20_context* ctx);
 
 uint32_t rotl(uint32_t x, int n)

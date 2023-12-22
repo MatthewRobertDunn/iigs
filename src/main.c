@@ -5,6 +5,7 @@ void setPalette(int colorNum, int red, int green, int blue);
 #include "printf.h"
 #include "text.h"
 #include "chacha20.h"
+#include <string.h>
 char message[] = "Hello there";
 
 uint8_t key[] = "58994083179912377936593775884845";
@@ -70,14 +71,21 @@ void main(void)
 		// set color 0 to be red
 		setPalette(i, i, i, i);
 	}
-
+	
+	/*
 	chacha20_ietf_init(&ctx, key, nonce);
 	for (i = 0; i < 32000; i+=64)
 	{
 		//video[i] = 0x0F; // alternate green and red
 		chacha20_block_next(&ctx, video + i);
 	}
+	*/
 	
+	
+	for(i=0; i<10000;i++){
+		printf("Hello %d\n", (long)i);
+	}
+
 	// do nothing
 	while (1)
 	{

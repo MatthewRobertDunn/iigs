@@ -22,15 +22,15 @@ WRCARDRAM equ $E0C005         ; Write to auxiliary memory
         STA >RDCARDRAM          ; Reads from bank $00 to go bank $01
         REP #$20
 
-        lda #$20FF
+        lda #($2000+$FF)       ;start 0XFF bytes from the start of video memory, stack pointer decrements every time.
 START:
-        tcs                     ;Start stack at top of screen
+        tcs                    ;Start stack at top of screen
 
         clc
-        adc #($0500-$FF)
+        adc #(($08*$A0)-$FF)    ;Start copying from 0x08 rows * 0xA0 bytes per line down.
         tcd
 
-        ;here we need to do 128 copies of PEIs (2 bytes at a time)
+        ;Here we push 128*2 bytes onto the stack, and the stack happens to be 1 row behind us...
         pei $fe
         pei $fc
         pei $fa
@@ -160,14 +160,16 @@ START:
         pei $2
         pei $0
         SEC
-        SBC #($0500-$FF-$FF)
+        SBC #(($08*$A0)-$FF-$FF)   ;Undo our previous addition but move 0xFF bytes ahead
 
-        CMP #($20FF+($FF*120))
+        CMP #($20FF+($FF*120))   ;Repeat until 120 lots of 0xff bytes, which is one whole screen, then exit.
         BEQ END
         BRL START
 
 END        
-        
+
+        ;Clean up all the mess we made so we dont crash
+
         ;Restore bank 0
         SEP #$20
         STA >RDMAINRAM          ; Read from bank $00

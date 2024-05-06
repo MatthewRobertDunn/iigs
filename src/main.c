@@ -6,10 +6,42 @@ void setPalette(int colorNum, int red, int green, int blue);
 #include "text.h"
 #include "chacha20.h"
 #include <string.h>
+#include "uECC.h"
 char message[] = "Hello there";
 
 uint8_t key[] = "58994083179912377936593775884845";
 uint8_t nonce[] = "468133307134";
+
+struct chacha20_context far rng_ctx;
+
+static int RNG(uint8_t *dest, unsigned size) {
+	chacha20_next_random(&rng_ctx, dest, size);
+	return 1;
+}
+
+uint8_t private1[32];
+uint8_t private2[32];
+uint8_t public1[64];
+uint8_t public2[64];
+uint8_t secret1[32];
+uint8_t secret2[32];
+
+void doCurve(void){
+  const struct uECC_Curve_t * curve;
+  int r;
+  printf("Making key 1!\n");
+  curve = uECC_secp256k1();
+  uECC_make_key(public1, private1, curve);
+  printf("Making key 2!\n");
+  uECC_make_key(public2, private2, curve);
+  printf("getting shared secret\n");
+  r = uECC_shared_secret(public2, private1, secret1, curve);
+  if(!r){
+	printf("secret bad\n");
+  }
+  printf("All good!\n");
+}
+
 void main(void)
 {
 	int i = 0;
@@ -20,7 +52,7 @@ void main(void)
 	char *video = (char *)0x012000;
 	char **testMemory;
 	uint8_t randomByte;
-	struct chacha20_context ctx;
+	int * foo = 0;
 	//__TLStartUp();
 
 	// enable super high res mode, maybe
@@ -28,6 +60,7 @@ void main(void)
 
 	// Enable shadow for super high res mode
 	*shadow &= 0xF7;
+
 
 	/*
 	if (!_TLStartUp())
@@ -71,6 +104,18 @@ void main(void)
 		// set color 0 to be red
 		setPalette(i, i, i, i);
 	}
+
+	printf("Starting\n");
+
+	//foo = (int*)alloca(8);
+	//foo[2] = 123;
+	//printf("Hi %d", (long)foo[2]);
+
+
+	chacha20_ietf_init(&rng_ctx, key, nonce);
+	uECC_set_rng(&RNG);
+	doCurve();
+
 	
 	/*
 	chacha20_ietf_init(&ctx, key, nonce);
@@ -80,13 +125,9 @@ void main(void)
 		chacha20_block_next(&ctx, video + i);
 	}
 	*/
-	
-	
-	for(i=0; i<10000;i++){
-		printf("Hello %d\n", (long)i);
-	}
 
 	// do nothing
+	printf("Finished");
 	while (1)
 	{
 	}

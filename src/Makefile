@@ -17,8 +17,8 @@ startup.obj: startup.c
 main.obj: main.c 
 	$(CC) $(CFLAGS) main.c 
 
-out.omf: startup.obj main.obj text.obj printf.obj chacha20.obj fastscroll.obj
-	$(LD) -L $(LIB)  -l cl -X startup.obj main.obj text.obj printf.obj chacha20.obj fastscroll.obj
+out.omf: startup.obj main.obj text.obj printf.obj chacha20.obj fastscroll.obj uECC.obj
+	$(LD) -L $(LIB)  -l cl -X startup.obj main.obj text.obj printf.obj chacha20.obj fastscroll.obj uECC.obj
 
 text.obj: text.c font.h
 	$(CC) $(CFLAGS) text.c
@@ -34,6 +34,10 @@ blake2s.obj: blake2s.c blake2s.h
 
 fastscroll.obj: fastscroll.c fastscroll.h
 	$(CC) $(CFLAGS) fastscroll.c		
+
+uECC.obj: uECC.c uECC.h uECC_vli.h types.h platform-specific.inc curve-specific.inc
+	$(CC) $(CFLAGS) uECC.c	
+
 
 
 #shit.obj: shit.c

@@ -37,7 +37,9 @@ fastscroll.obj: fastscroll.c fastscroll.h
 
 uECC.obj: uECC.c uECC.h uECC_vli.h types.h platform-specific.inc curve-specific.inc
 	$(CC) $(CFLAGS) uECC.c	
-
+	
+curve25519.obj: curve25519.c curve25519.obj
+	$(CC) $(CFLAGS) curve25519.c	
 
 
 #shit.obj: shit.c

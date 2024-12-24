@@ -1,3 +1,8 @@
+#ifndef _CURVE26619_H
+#define _CURVE26619_H
+
+#include <stdint.h>
+#include <stddef.h>
 //big number stuff
 
 #define CRYPTO_LITTLE_ENDIAN 1
@@ -25,13 +30,19 @@ typedef unsigned __int128 dlimb_t;
 #error "limb_t must be 8, 16, 32, or 64 bits in size"
 #endif
 
+// The number of bits in a limb.
+#define LIMB_BITS   (8 * sizeof(limb_t))
+
 void unpackLE(limb_t *limbs, size_t count, const uint8_t *bytes, size_t len);
 void packLE(uint8_t *bytes, size_t len, const limb_t *limbs, size_t count);
 
 
+//end of bignumber stuff
 
+limb_t reduceQuick(limb_t *x);
+uint8_t isWeakPoint(const uint8_t k[32]);
+void mulNoReduce(limb_t *result, const limb_t *x, const limb_t *y);
 
-
-
+#endif
 					   
 					   

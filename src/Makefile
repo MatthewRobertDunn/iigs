@@ -38,7 +38,7 @@ fastscroll.obj: fastscroll.c fastscroll.h
 uECC.obj: uECC.c uECC.h uECC_vli.h types.h platform-specific.inc curve-specific.inc
 	$(CC) $(CFLAGS) uECC.c	
 	
-curve25519.obj: curve25519.c curve25519.obj
+curve25519.obj: curve25519.c curve25519.h
 	$(CC) $(CFLAGS) curve25519.c	
 
 
@@ -50,4 +50,4 @@ mydisk.po: out.omf
 	$(CAD) addfile mydisk.po /NEW.DISK/ .\out.omf
 
 emulator: mydisk.po
-	emulator.bat
+	./emulator.bat

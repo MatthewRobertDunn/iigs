@@ -1,13 +1,13 @@
 #ifndef _CURVE26619_H
 #define _CURVE26619_H
 
-#include <stdint.h>
-#include <stddef.h>
+#include <STDINT.H>
+#include <STDDEF.H>
+#include <STDBOOL.H>
 //big number stuff
 
 #define CRYPTO_LITTLE_ENDIAN 1
 #define BIGNUMBER_LIMB_16BIT 1
-#define NUM_LIMBS_256BIT 16
 
 // Define the limb types to use on this platform.
 #if BIGNUMBER_LIMB_8BIT
@@ -30,8 +30,33 @@ typedef unsigned __int128 dlimb_t;
 #error "limb_t must be 8, 16, 32, or 64 bits in size"
 #endif
 
+// Number of limbs in a big number value of various sizes.
+#define NUM_LIMBS_BITS(n) \
+    (((n) + sizeof(limb_t) * 8 - 1) / (8 * sizeof(limb_t)))
+#define NUM_LIMBS_128BIT NUM_LIMBS_BITS(128)
+#define NUM_LIMBS_256BIT NUM_LIMBS_BITS(256)
+#define NUM_LIMBS_512BIT NUM_LIMBS_BITS(512)
+
 // The number of bits in a limb.
 #define LIMB_BITS   (8 * sizeof(limb_t))
+
+#if BIGNUMBER_LIMB_8BIT
+#define LIMB(value)     ((uint8_t)(value)), \
+                        ((uint8_t)((value) >> 8)), \
+                        ((uint8_t)((value) >> 16)), \
+                        ((uint8_t)((value) >> 24))
+#define LIMB_PAIR(x,y)  LIMB((x)), LIMB((y))
+#elif BIGNUMBER_LIMB_16BIT
+#define LIMB(value)     ((uint16_t)(value)), \
+                        ((uint16_t)(((uint32_t)(value)) >> 16))
+#define LIMB_PAIR(x,y)  LIMB((x)), LIMB((y))
+#elif BIGNUMBER_LIMB_32BIT
+#define LIMB(value)     (value)
+#define LIMB_PAIR(x,y)  LIMB((x)), LIMB((y))
+#elif BIGNUMBER_LIMB_64BIT
+#define LIMB(value)     (value)
+#define LIMB_PAIR(x,y)  ((((uint64_t)(y)) << 32) | ((uint64_t)(x)))
+#endif
 
 void unpackLE(limb_t *limbs, size_t count, const uint8_t *bytes, size_t len);
 void packLE(uint8_t *bytes, size_t len, const limb_t *limbs, size_t count);
@@ -39,10 +64,20 @@ void packLE(uint8_t *bytes, size_t len, const limb_t *limbs, size_t count);
 
 //end of bignumber stuff
 
+void reduce(limb_t *result, limb_t *x, uint8_t size);
 limb_t reduceQuick(limb_t *x);
 uint8_t isWeakPoint(const uint8_t k[32]);
 void mulNoReduce(limb_t *result, const limb_t *x, const limb_t *y);
-
+void mul(limb_t *result, const limb_t *x, const limb_t *y);
+void mulA24(limb_t *result, const limb_t *x);
+void add(limb_t *result, const limb_t *x, const limb_t *y);
+void sub(limb_t *result, const limb_t *x, const limb_t *y);
+void cswap(limb_t select, limb_t *x, limb_t *y);
+void cmove(limb_t select, limb_t *x, const limb_t *y);
+void pow250(limb_t *result, const limb_t *x);
+void recip(limb_t *result, const limb_t *x);
+bool sqrt(limb_t *result, const limb_t *x);
+  
 #endif
 					   
 					   

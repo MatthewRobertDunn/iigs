@@ -1,3 +1,5 @@
 .vs
 *.TMP
 .vscode
+*.o
+*.exe

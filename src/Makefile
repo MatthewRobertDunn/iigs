@@ -2,7 +2,7 @@ export PATH := ..\bin\:$(PATH)
 CC=WDC816CC
 LD=wdclink
 CAD=cadius
-CFLAGS= -i ../include/ -ML -SF -SI -SP
+CFLAGS= -i ../include/ -ML
 SAFECFLAGS= -i ../include/ -ML
 LIB= ../lib/
 

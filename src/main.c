@@ -12,7 +12,7 @@ char message[] = "Hello there";
 uint8_t key[] = "58994083179912377936593775884845";
 uint8_t nonce[] = "468133307134";
 
-struct chacha20_context far rng_ctx;
+struct chacha20_context rng_ctx;
 
 static int RNG(uint8_t *dest, unsigned size) {
 	chacha20_next_random(&rng_ctx, dest, size);

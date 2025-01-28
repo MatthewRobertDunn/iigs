@@ -58,26 +58,28 @@ typedef unsigned __int128 dlimb_t;
 #define LIMB_PAIR(x,y)  ((((uint64_t)(y)) << 32) | ((uint64_t)(x)))
 #endif
 
-void unpackLE(limb_t *limbs, size_t count, const uint8_t *bytes, size_t len);
-void packLE(uint8_t *bytes, size_t len, const limb_t *limbs, size_t count);
+void curve25519_unpackLE(limb_t *limbs, size_t count, const uint8_t *bytes, size_t len);
+void curve25519_packLE(uint8_t *bytes, size_t len, const limb_t *limbs, size_t count);
+bool curve25519_eval(uint8_t result[32], const uint8_t s[32], const uint8_t x[32]);
 
 
 //end of bignumber stuff
 
-void reduce(limb_t *result, limb_t *x, uint8_t size);
-limb_t reduceQuick(limb_t *x);
-uint8_t isWeakPoint(const uint8_t k[32]);
-void mulNoReduce(limb_t *result, const limb_t *x, const limb_t *y);
-void mul(limb_t *result, const limb_t *x, const limb_t *y);
-void mulA24(limb_t *result, const limb_t *x);
-void add(limb_t *result, const limb_t *x, const limb_t *y);
-void sub(limb_t *result, const limb_t *x, const limb_t *y);
-void cswap(limb_t select, limb_t *x, limb_t *y);
-void cmove(limb_t select, limb_t *x, const limb_t *y);
-void pow250(limb_t *result, const limb_t *x);
-void recip(limb_t *result, const limb_t *x);
-bool sqrt(limb_t *result, const limb_t *x);
-  
+void curve25519_reduce(limb_t *result, limb_t *x, uint8_t size);
+limb_t curve25519_reduceQuick(limb_t *x);
+uint8_t curve25519_isWeakPoint(const uint8_t k[32]);
+void curve25519_mulNoReduce(limb_t *result, const limb_t *x, const limb_t *y);
+void curve25519_mul(limb_t *result, const limb_t *x, const limb_t *y);
+void curve25519_mulA24(limb_t *result, const limb_t *x);
+void curve25519_add(limb_t *result, const limb_t *x, const limb_t *y);
+void curve25519_sub(limb_t *result, const limb_t *x, const limb_t *y);
+void curve25519_cswap(limb_t select, limb_t *x, limb_t *y);
+void curve25519_cmove(limb_t select, limb_t *x, const limb_t *y);
+void curve25519_pow250(limb_t *result, const limb_t *x);
+void curve25519_recip(limb_t *result, const limb_t *x);
+bool curve25519_sqrt(limb_t *result, const limb_t *x);
+void curve25519_square(limb_t *result, const limb_t *x); 
 #endif
 					   
+
 					   

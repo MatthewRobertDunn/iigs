@@ -3,6 +3,7 @@ CC=WDC816CC
 LD=wdclink
 CAD=cadius
 CFLAGS= -i ../include/ -ML -SF -SI -SP
+SAFECFLAGS= -i ../include/ -ML
 LIB= ../lib/
 
 all: mydisk.po
@@ -14,11 +15,11 @@ clean:
 startup.obj: startup.c
 	$(CC) $(CFLAGS) startup.c 
 
-main.obj: main.c 
-	$(CC) $(CFLAGS) main.c 
+main.obj: test-curve-25519.c 
+	$(CC) $(CFLAGS) test-curve-25519.c -o main.obj
 
-out.omf: startup.obj main.obj text.obj printf.obj chacha20.obj fastscroll.obj uECC.obj
-	$(LD) -L $(LIB)  -l cl -X startup.obj main.obj text.obj printf.obj chacha20.obj fastscroll.obj uECC.obj
+out.omf: startup.obj main.obj text.obj printf.obj chacha20.obj fastscroll.obj uECC.obj curve25519.obj
+	$(LD) -L $(LIB)  -l cl -X startup.obj main.obj text.obj printf.obj chacha20.obj fastscroll.obj uECC.obj curve25519.obj
 
 text.obj: text.c font.h
 	$(CC) $(CFLAGS) text.c
@@ -39,7 +40,7 @@ uECC.obj: uECC.c uECC.h uECC_vli.h types.h platform-specific.inc curve-specific.
 	$(CC) $(CFLAGS) uECC.c	
 	
 curve25519.obj: curve25519.c curve25519.h
-	$(CC) $(CFLAGS) curve25519.c	
+	$(CC) $(SAFECFLAGS) curve25519.c	
 
 
 #shit.obj: shit.c

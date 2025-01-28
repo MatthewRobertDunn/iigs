@@ -2,8 +2,8 @@ export PATH := ..\bin\:$(PATH)
 CC=WDC816CC
 LD=wdclink
 CAD=cadius
-CFLAGS= -i ../include/ -ML
-SAFECFLAGS= -i ../include/ -ML
+CFLAGS= -i ../include/ -MK -ML -SF -SI -SP
+SAFECFLAGS= -i ../include/ -MK -ML -SF -SI -SS
 LIB= ../lib/
 
 all: mydisk.po
@@ -18,8 +18,8 @@ startup.obj: startup.c
 main.obj: test-curve-25519.c 
 	$(CC) $(CFLAGS) test-curve-25519.c -o main.obj
 
-out.omf: startup.obj main.obj text.obj printf.obj chacha20.obj fastscroll.obj uECC.obj curve25519.obj
-	$(LD) -L $(LIB)  -l cl -X startup.obj main.obj text.obj printf.obj chacha20.obj fastscroll.obj uECC.obj curve25519.obj
+out.omf: startup.obj main.obj text.obj printf.obj chacha20.obj fastscroll.obj curve25519.obj
+	$(LD) -L $(LIB)  -l cl -X startup.obj main.obj text.obj printf.obj chacha20.obj fastscroll.obj curve25519.obj
 
 text.obj: text.c font.h
 	$(CC) $(CFLAGS) text.c
@@ -35,9 +35,6 @@ blake2s.obj: blake2s.c blake2s.h
 
 fastscroll.obj: fastscroll.c fastscroll.h
 	$(CC) $(CFLAGS) fastscroll.c		
-
-uECC.obj: uECC.c uECC.h uECC_vli.h types.h platform-specific.inc curve-specific.inc
-	$(CC) $(CFLAGS) uECC.c	
 	
 curve25519.obj: curve25519.c curve25519.h
 	$(CC) $(SAFECFLAGS) curve25519.c	

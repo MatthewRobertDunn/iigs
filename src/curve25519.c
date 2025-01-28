@@ -4,10 +4,9 @@
 #else
 #define far
 #endif
-#include <stdio.h>
 #include <STRING.H>
 #include "curve25519.h"
-
+#include "printf.h"
 /**
  * \brief Unpacks the little-endian byte representation of a big number
  * into a limb array.
@@ -23,84 +22,104 @@
  *
  * \sa packLE(), unpackBE()
  */
-void curve25519_unpackLE(limb_t far *limbs, size_t count, const uint8_t far *bytes, size_t len)
+void curve25519_unpackLE(limb_t *limbs, size_t count, const uint8_t *bytes, size_t len)
 {
 #if BIGNUMBER_LIMB_8BIT
-    if (len < count) {
+    if (len < count)
+    {
         memcpy(limbs, bytes, len);
         memset(limbs + len, 0, count - len);
-    } else {
+    }
+    else
+    {
         memcpy(limbs, bytes, count);
     }
 #elif CRYPTO_LITTLE_ENDIAN
     count *= sizeof(limb_t);
-    if (len < count) {
+    if (len < count)
+    {
         memcpy(limbs, bytes, len);
         memset(((uint8_t *)limbs) + len, 0, count - len);
-    } else {
+    }
+    else
+    {
         memcpy(limbs, bytes, count);
     }
 #elif BIGNUMBER_LIMB_16BIT
-    while (count > 0 && len >= 2) {
+    while (count > 0 && len >= 2)
+    {
         *limbs++ = ((limb_t)(bytes[0])) |
-                  (((limb_t)(bytes[1])) << 8);
+                   (((limb_t)(bytes[1])) << 8);
         bytes += 2;
         --count;
         len -= 2;
     }
-    if (count > 0 && len == 1) {
+    if (count > 0 && len == 1)
+    {
         *limbs++ = ((limb_t)(bytes[0]));
         --count;
     }
-    while (count > 0) {
+    while (count > 0)
+    {
         *limbs++ = 0;
         --count;
     }
 #elif BIGNUMBER_LIMB_32BIT
-    while (count > 0 && len >= 4) {
+    while (count > 0 && len >= 4)
+    {
         *limbs++ = ((limb_t)(bytes[0])) |
-                  (((limb_t)(bytes[1])) <<  8) |
-                  (((limb_t)(bytes[2])) << 16) |
-                  (((limb_t)(bytes[3])) << 24);
+                   (((limb_t)(bytes[1])) << 8) |
+                   (((limb_t)(bytes[2])) << 16) |
+                   (((limb_t)(bytes[3])) << 24);
         bytes += 4;
         --count;
         len -= 4;
     }
-    if (count > 0 && len > 0) {
-        if (len == 3) {
+    if (count > 0 && len > 0)
+    {
+        if (len == 3)
+        {
             *limbs++ = ((limb_t)(bytes[0])) |
-                      (((limb_t)(bytes[1])) <<  8) |
-                      (((limb_t)(bytes[2])) << 16);
-        } else if (len == 2) {
+                       (((limb_t)(bytes[1])) << 8) |
+                       (((limb_t)(bytes[2])) << 16);
+        }
+        else if (len == 2)
+        {
             *limbs++ = ((limb_t)(bytes[0])) |
-                      (((limb_t)(bytes[1])) <<  8);
-        } else {
+                       (((limb_t)(bytes[1])) << 8);
+        }
+        else
+        {
             *limbs++ = ((limb_t)(bytes[0]));
         }
         --count;
     }
-    while (count > 0) {
+    while (count > 0)
+    {
         *limbs++ = 0;
         --count;
     }
 #elif BIGNUMBER_LIMB_64BIT
-    while (count > 0 && len >= 8) {
+    while (count > 0 && len >= 8)
+    {
         *limbs++ = ((limb_t)(bytes[0])) |
-                  (((limb_t)(bytes[1])) <<  8) |
-                  (((limb_t)(bytes[2])) << 16) |
-                  (((limb_t)(bytes[3])) << 24) |
-                  (((limb_t)(bytes[4])) << 32) |
-                  (((limb_t)(bytes[5])) << 40) |
-                  (((limb_t)(bytes[6])) << 48) |
-                  (((limb_t)(bytes[7])) << 56);
+                   (((limb_t)(bytes[1])) << 8) |
+                   (((limb_t)(bytes[2])) << 16) |
+                   (((limb_t)(bytes[3])) << 24) |
+                   (((limb_t)(bytes[4])) << 32) |
+                   (((limb_t)(bytes[5])) << 40) |
+                   (((limb_t)(bytes[6])) << 48) |
+                   (((limb_t)(bytes[7])) << 56);
         bytes += 8;
         --count;
         len -= 8;
     }
-    if (count > 0 && len > 0) {
+    if (count > 0 && len > 0)
+    {
         limb_t word = 0;
         uint8_t shift = 0;
-        while (len > 0 && shift < 64) {
+        while (len > 0 && shift < 64)
+        {
             word |= (((limb_t)(*bytes++)) << shift);
             shift += 8;
             --len;
@@ -108,7 +127,8 @@ void curve25519_unpackLE(limb_t far *limbs, size_t count, const uint8_t far *byt
         *limbs++ = word;
         --count;
     }
-    while (count > 0) {
+    while (count > 0)
+    {
         *limbs++ = 0;
         --count;
     }
@@ -131,27 +151,34 @@ void curve25519_unpackLE(limb_t far *limbs, size_t count, const uint8_t far *byt
  *
  * \sa unpackLE(), packBE()
  */
-void curve25519_packLE(uint8_t far *bytes, size_t len,
-                           const limb_t far *limbs, size_t count)
+void curve25519_packLE(uint8_t *bytes, size_t len,
+                       const limb_t *limbs, size_t count)
 {
 #if BIGNUMBER_LIMB_8BIT
-    if (len <= count) {
+    if (len <= count)
+    {
         memcpy(bytes, limbs, len);
-    } else {
+    }
+    else
+    {
         memcpy(bytes, limbs, count);
         memset(bytes + count, 0, len - count);
     }
 #elif CRYPTO_LITTLE_ENDIAN
     count *= sizeof(limb_t);
-    if (len <= count) {
+    if (len <= count)
+    {
         memcpy(bytes, limbs, len);
-    } else {
+    }
+    else
+    {
         memcpy(bytes, limbs, count);
         memset(bytes + count, 0, len - count);
     }
 #elif BIGNUMBER_LIMB_16BIT
     limb_t word;
-    while (count > 0 && len >= 2) {
+    while (count > 0 && len >= 2)
+    {
         word = *limbs++;
         bytes[0] = (uint8_t)word;
         bytes[1] = (uint8_t)(word >> 8);
@@ -159,7 +186,8 @@ void curve25519_packLE(uint8_t far *bytes, size_t len,
         len -= 2;
         bytes += 2;
     }
-    if (count > 0 && len == 1) {
+    if (count > 0 && len == 1)
+    {
         bytes[0] = (uint8_t)(*limbs);
         --len;
         ++bytes;
@@ -167,7 +195,8 @@ void curve25519_packLE(uint8_t far *bytes, size_t len,
     memset(bytes, 0, len);
 #elif BIGNUMBER_LIMB_32BIT
     limb_t word;
-    while (count > 0 && len >= 4) {
+    while (count > 0 && len >= 4)
+    {
         word = *limbs++;
         bytes[0] = (uint8_t)word;
         bytes[1] = (uint8_t)(word >> 8);
@@ -177,21 +206,27 @@ void curve25519_packLE(uint8_t far *bytes, size_t len,
         len -= 4;
         bytes += 4;
     }
-    if (count > 0) {
-        if (len == 3) {
+    if (count > 0)
+    {
+        if (len == 3)
+        {
             word = *limbs;
             bytes[0] = (uint8_t)word;
             bytes[1] = (uint8_t)(word >> 8);
             bytes[2] = (uint8_t)(word >> 16);
             len -= 3;
             bytes += 3;
-        } else if (len == 2) {
+        }
+        else if (len == 2)
+        {
             word = *limbs;
             bytes[0] = (uint8_t)word;
             bytes[1] = (uint8_t)(word >> 8);
             len -= 2;
             bytes += 2;
-        } else if (len == 1) {
+        }
+        else if (len == 1)
+        {
             bytes[0] = (uint8_t)(*limbs);
             --len;
             ++bytes;
@@ -200,7 +235,8 @@ void curve25519_packLE(uint8_t far *bytes, size_t len,
     memset(bytes, 0, len);
 #elif BIGNUMBER_LIMB_64BIT
     limb_t word;
-    while (count > 0 && len >= 8) {
+    while (count > 0 && len >= 8)
+    {
         word = *limbs++;
         bytes[0] = (uint8_t)word;
         bytes[1] = (uint8_t)(word >> 8);
@@ -214,9 +250,11 @@ void curve25519_packLE(uint8_t far *bytes, size_t len,
         len -= 8;
         bytes += 8;
     }
-    if (count > 0) {
+    if (count > 0)
+    {
         word = *limbs;
-        while (len > 0) {
+        while (len > 0)
+        {
             *bytes++ = (uint8_t)word;
             word >>= 8;
             --len;
@@ -239,22 +277,23 @@ void curve25519_packLE(uint8_t far *bytes, size_t len,
  * the caller knows that \a x is within the described range.  A single
  * trial subtraction is all that is needed to reduce the number.
  */
-limb_t curve25519_reduceQuick(limb_t far *x)
+limb_t curve25519_reduceQuick(limb_t *x)
 {
     limb_t temp[NUM_LIMBS_256BIT];
     dlimb_t carry;
     uint8_t posn;
     limb_t *xx;
     limb_t *tt;
-	limb_t mask, nmask;
-    
+    limb_t mask, nmask;
+
     // Perform a trial subtraction of (2^255 - 19) from "x" which is
     // equivalent to adding 19 and subtracting 2^255.  We add 19 here;
     // the subtraction of 2^255 occurs in the next step.
     carry = 19U;
     xx = x;
     tt = temp;
-    for (posn = 0; posn < NUM_LIMBS_256BIT; ++posn) {
+    for (posn = 0; posn < NUM_LIMBS_256BIT; ++posn)
+    {
         carry += *xx++;
         *tt++ = (limb_t)carry;
         carry >>= LIMB_BITS;
@@ -270,7 +309,8 @@ limb_t curve25519_reduceQuick(limb_t far *x)
     temp[NUM_LIMBS_256BIT - 1] &= ((((limb_t)1) << (LIMB_BITS - 1)) - 1);
     xx = x;
     tt = temp;
-    for (posn = 0; posn < NUM_LIMBS_256BIT; ++posn) {
+    for (posn = 0; posn < NUM_LIMBS_256BIT; ++posn)
+    {
         *xx = ((*xx) & nmask) | ((*tt++) & mask);
         ++xx;
     }
@@ -286,9 +326,9 @@ limb_t curve25519_reduceQuick(limb_t far *x)
  * \return Returns 1 if \a k is weak for contributory behavior or
  * returns zero if \a k is not weak.
  */
-uint8_t curve25519_isWeakPoint(const uint8_t far k[32])
+uint8_t curve25519_isWeakPoint(const uint8_t k[32])
 {
-	
+
     // List of weak points from http://cr.yp.to/ecdh.html
     // That page lists some others but they are variants on these
     // of the form "point + i * (2^255 - 19)" for i = 0, 1, 2.
@@ -313,8 +353,7 @@ uint8_t curve25519_isWeakPoint(const uint8_t far k[32])
         {0xEC, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
          0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
          0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-         0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F}
-    };
+         0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F}};
 
     // Check each of the weak points in turn.  We perform the
     // comparisons carefully so as not to reveal the value of "k"
@@ -322,12 +361,13 @@ uint8_t curve25519_isWeakPoint(const uint8_t far k[32])
     // we still check everything so as not to reveal which
     // weak point it is.
     uint8_t result = 0;
-	uint8_t posn;
-    for (posn = 0; posn < 5; ++posn) {
+    uint8_t posn;
+    for (posn = 0; posn < 5; ++posn)
+    {
         const uint8_t *point = points[posn];
         uint8_t check = (point[31] ^ k[31]) & 0x7F;
         uint8_t index;
-		for (index = 31; index > 0; --index)
+        for (index = 31; index > 0; --index)
             check |= (point[index - 1] ^ k[index - 1]);
         result |= (uint8_t)((((uint16_t)0x0100) - check) >> 8);
     }
@@ -336,7 +376,7 @@ uint8_t curve25519_isWeakPoint(const uint8_t far k[32])
     return result;
 }
 
-void curve25519_mulNoReduce(limb_t far *result, const limb_t far *x, const limb_t far *y)
+void curve25519_mulNoReduce(limb_t *result, const limb_t *x, const limb_t *y)
 {
     uint8_t i, j;
     dlimb_t carry;
@@ -349,7 +389,8 @@ void curve25519_mulNoReduce(limb_t far *result, const limb_t far *x, const limb_
     word = x[0];
     yy = y;
     rr = result;
-    for (i = 0; i < NUM_LIMBS_256BIT; ++i) {
+    for (i = 0; i < NUM_LIMBS_256BIT; ++i)
+    {
         carry += ((dlimb_t)(*yy++)) * word;
         *rr++ = (limb_t)carry;
         carry >>= LIMB_BITS;
@@ -357,12 +398,14 @@ void curve25519_mulNoReduce(limb_t far *result, const limb_t far *x, const limb_
     *rr = (limb_t)carry;
 
     // Multiply and add the remaining words of x by y.
-    for (i = 1; i < NUM_LIMBS_256BIT; ++i) {
+    for (i = 1; i < NUM_LIMBS_256BIT; ++i)
+    {
         word = x[i];
         carry = 0;
         yy = y;
         rr = result + i;
-        for (j = 0; j < NUM_LIMBS_256BIT; ++j) {
+        for (j = 0; j < NUM_LIMBS_256BIT; ++j)
+        {
             carry += ((dlimb_t)(*yy++)) * word;
             carry += *rr;
             *rr++ = (limb_t)carry;
@@ -371,7 +414,6 @@ void curve25519_mulNoReduce(limb_t far *result, const limb_t far *x, const limb_
         *rr = (limb_t)carry;
     }
 }
-
 
 /**
  * \brief Multiplies two values and then reduces the result modulo 2^255 - 19.
@@ -383,26 +425,26 @@ void curve25519_mulNoReduce(limb_t far *result, const limb_t far *x, const limb_
  * \param y The second value to multiply, which must be NUM_LIMBS_256BIT limbs
  * in size and less than 2^255 - 19.  This can be the same array as \a x.
  */
-void curve25519_mul(limb_t far *result, const limb_t far *x, const limb_t far *y)
+void curve25519_mul(limb_t *result, const limb_t *x, const limb_t *y)
 {
     limb_t temp[NUM_LIMBS_512BIT];
     curve25519_mulNoReduce(temp, x, y);
     curve25519_reduce(result, temp, NUM_LIMBS_256BIT);
 }
 
-void curve25519_mulA24(limb_t far *result, const limb_t far *x)
+void curve25519_mulA24(limb_t *result, const limb_t *x)
 {
     // The constant a24 = 121665 (0x1DB41) as a limb array.
 #if BIGNUMBER_LIMB_8BIT
     static limb_t const a24[3] = {0x41, 0xDB, 0x01};
 #elif BIGNUMBER_LIMB_16BIT
-    static limb_t const far a24[2] = {0xDB41, 0x0001};
+    static limb_t const a24[2] = {0xDB41, 0x0001};
 #elif BIGNUMBER_LIMB_32BIT || BIGNUMBER_LIMB_64BIT
     static limb_t const a24[1] = {0x0001DB41};
 #else
-    #error "limb_t must be 8, 16, 32, or 64 bits in size"
+#error "limb_t must be 8, 16, 32, or 64 bits in size"
 #endif
-    #define NUM_A24_LIMBS   (sizeof(a24) / sizeof(limb_t))
+#define NUM_A24_LIMBS (sizeof(a24) / sizeof(limb_t))
 
     // Multiply the lowest limb of a24 by x and zero-extend into the result.
     limb_t temp[NUM_LIMBS_512BIT];
@@ -411,7 +453,8 @@ void curve25519_mulA24(limb_t far *result, const limb_t far *x)
     limb_t word = a24[0];
     const limb_t *xx = x;
     limb_t *tt = temp;
-    for (i = 0; i < NUM_LIMBS_256BIT; ++i) {
+    for (i = 0; i < NUM_LIMBS_256BIT; ++i)
+    {
         carry += ((dlimb_t)(*xx++)) * word;
         *tt++ = (limb_t)carry;
         carry >>= LIMB_BITS;
@@ -419,12 +462,14 @@ void curve25519_mulA24(limb_t far *result, const limb_t far *x)
     *tt = (limb_t)carry;
 
     // Multiply and add the remaining limbs of a24.
-    for (i = 1; i < NUM_A24_LIMBS; ++i) {
+    for (i = 1; i < NUM_A24_LIMBS; ++i)
+    {
         word = a24[i];
         carry = 0;
         xx = x;
         tt = temp + i;
-        for (j = 0; j < NUM_LIMBS_256BIT; ++j) {
+        for (j = 0; j < NUM_LIMBS_256BIT; ++j)
+        {
             carry += ((dlimb_t)(*xx++)) * word;
             carry += *tt;
             *tt++ = (limb_t)carry;
@@ -437,8 +482,6 @@ void curve25519_mulA24(limb_t far *result, const limb_t far *x)
     curve25519_reduce(result, temp, NUM_A24_LIMBS);
 }
 
-
-
 /**
  * \brief Adds two values and then reduces the result modulo 2^255 - 19.
  *
@@ -449,14 +492,15 @@ void curve25519_mulA24(limb_t far *result, const limb_t far *x)
  * \param y The second value to multiply, which must be NUM_LIMBS_256BIT
  * limbs in size and less than 2^255 - 19.
  */
-void curve25519_add(limb_t far *result, const limb_t far *x, const limb_t far *y)
+void curve25519_add(limb_t *result, const limb_t *x, const limb_t *y)
 {
     dlimb_t carry = 0;
     uint8_t posn;
     limb_t *rr = result;
 
     // Add the two arrays to obtain the intermediate result.
-    for (posn = 0; posn < NUM_LIMBS_256BIT; ++posn) {
+    for (posn = 0; posn < NUM_LIMBS_256BIT; ++posn)
+    {
         carry += *x++;
         carry += *y++;
         *rr++ = (limb_t)carry;
@@ -476,7 +520,7 @@ void curve25519_add(limb_t far *result, const limb_t far *x, const limb_t far *y
  * \param y The second value to multiply, which must be NUM_LIMBS_256BIT
  * limbs in size and less than 2^255 - 19.
  */
-void curve25519_sub(limb_t far *result, const limb_t far *x, const limb_t far *y)
+void curve25519_sub(limb_t *result, const limb_t *x, const limb_t *y)
 {
     dlimb_t borrow;
     uint8_t posn;
@@ -484,7 +528,8 @@ void curve25519_sub(limb_t far *result, const limb_t far *x, const limb_t far *y
 
     // Subtract y from x to generate the intermediate result.
     borrow = 0;
-    for (posn = 0; posn < NUM_LIMBS_256BIT; ++posn) {
+    for (posn = 0; posn < NUM_LIMBS_256BIT; ++posn)
+    {
         borrow = ((dlimb_t)(*x++)) - (*y++) - ((borrow >> LIMB_BITS) & 0x01);
         *rr++ = (limb_t)borrow;
     }
@@ -498,7 +543,8 @@ void curve25519_sub(limb_t far *result, const limb_t far *x, const limb_t far *y
     borrow = (borrow >> LIMB_BITS) & 19U;
     borrow = ((dlimb_t)(*rr)) - borrow;
     *rr++ = (limb_t)borrow;
-    for (posn = 1; posn < NUM_LIMBS_256BIT; ++posn) {
+    for (posn = 1; posn < NUM_LIMBS_256BIT; ++posn)
+    {
         borrow = ((dlimb_t)(*rr)) - ((borrow >> LIMB_BITS) & 0x01);
         *rr++ = (limb_t)borrow;
     }
@@ -517,7 +563,7 @@ void curve25519_sub(limb_t far *result, const limb_t far *x, const limb_t far *y
  *
  * \sa cmove()
  */
-void curve25519_cswap(limb_t select, limb_t far *x, limb_t far *y)
+void curve25519_cswap(limb_t select, limb_t *x, limb_t *y)
 {
     uint8_t posn;
     limb_t dummy;
@@ -530,7 +576,8 @@ void curve25519_cswap(limb_t select, limb_t far *x, limb_t far *y)
 
     // Swap the two values based on "select".  Algorithm from:
     // http://tools.ietf.org/html/rfc7748
-    for (posn = 0; posn < NUM_LIMBS_256BIT; ++posn) {
+    for (posn = 0; posn < NUM_LIMBS_256BIT; ++posn)
+    {
         dummy = sel & (x[posn] ^ y[posn]);
         x[posn] ^= dummy;
         y[posn] ^= dummy;
@@ -549,7 +596,7 @@ void curve25519_cswap(limb_t select, limb_t far *x, limb_t far *y)
  *
  * \sa cswap()
  */
-void curve25519_cmove(limb_t select, limb_t far *x, const limb_t far *y)
+void curve25519_cmove(limb_t select, limb_t *x, const limb_t *y)
 {
     uint8_t posn;
     limb_t dummy;
@@ -561,7 +608,8 @@ void curve25519_cmove(limb_t select, limb_t far *x, const limb_t far *y)
     --sel;
 
     // Move y into x based on "select".  Similar to conditional swap above.
-    for (posn = 0; posn < NUM_LIMBS_256BIT; ++posn) {
+    for (posn = 0; posn < NUM_LIMBS_256BIT; ++posn)
+    {
         dummy = sel & (x[posn] ^ y[posn]);
         x[posn] ^= dummy;
     }
@@ -623,23 +671,26 @@ void curve25519_reduce(limb_t far *result, limb_t far *x, uint8_t size)
     */
     dlimb_t carry;
     uint8_t posn;
-	limb_t mask, nmask;
+    limb_t mask, nmask;
 
     // Calculate (x mod 2^255) + ((x / 2^255) * 19) which will
     // either produce the answer we want or it will produce a
     // value of the form "answer + j * (2^255 - 19)".
     carry = ((dlimb_t)(x[NUM_LIMBS_256BIT - 1] >> (LIMB_BITS - 1))) * 19U;
     x[NUM_LIMBS_256BIT - 1] &= ((((limb_t)1) << (LIMB_BITS - 1)) - 1);
-    for (posn = 0; posn < size; ++posn) {
+    for (posn = 0; posn < size; ++posn)
+    {
         carry += ((dlimb_t)(x[posn + NUM_LIMBS_256BIT])) * 38U;
         carry += x[posn];
         x[posn] = (limb_t)carry;
         carry >>= LIMB_BITS;
     }
-    if (size < NUM_LIMBS_256BIT) {
+    if (size < NUM_LIMBS_256BIT)
+    {
         // The high order half of the number is short; e.g. for mulA24().
         // Propagate the carry through the rest of the low order part.
-        for (posn = size; posn < NUM_LIMBS_256BIT; ++posn) {
+        for (posn = size; posn < NUM_LIMBS_256BIT; ++posn)
+        {
             carry += x[posn];
             x[posn] = (limb_t)carry;
             carry >>= LIMB_BITS;
@@ -653,7 +704,8 @@ void curve25519_reduce(limb_t far *result, limb_t far *x, uint8_t size)
     carry *= 38U;
     carry += ((dlimb_t)(x[NUM_LIMBS_256BIT - 1] >> (LIMB_BITS - 1))) * 19U;
     x[NUM_LIMBS_256BIT - 1] &= ((((limb_t)1) << (LIMB_BITS - 1)) - 1);
-    for (posn = 0; posn < NUM_LIMBS_256BIT; ++posn) {
+    for (posn = 0; posn < NUM_LIMBS_256BIT; ++posn)
+    {
         carry += x[posn];
         x[posn] = (limb_t)carry;
         carry >>= LIMB_BITS;
@@ -665,7 +717,8 @@ void curve25519_reduce(limb_t far *result, limb_t far *x, uint8_t size)
     // trial answer into the top-most limbs of the original "x" array.
     // We add 19 here; the subtraction of 2^255 occurs in the next step.
     carry = 19U;
-    for (posn = 0; posn < NUM_LIMBS_256BIT; ++posn) {
+    for (posn = 0; posn < NUM_LIMBS_256BIT; ++posn)
+    {
         carry += x[posn];
         x[posn + NUM_LIMBS_256BIT] = (limb_t)carry;
         carry >>= LIMB_BITS;
@@ -677,10 +730,11 @@ void curve25519_reduce(limb_t far *result, limb_t far *x, uint8_t size)
     // it in a way that instruction timing will not reveal which value
     // was selected.  Borrow will occur if the high bit of the previous
     // result is 0: turn the high bit into a selection mask.
-	mask = (limb_t)(((slimb_t)(x[NUM_LIMBS_512BIT - 1])) >> (LIMB_BITS - 1));
+    mask = (limb_t)(((slimb_t)(x[NUM_LIMBS_512BIT - 1])) >> (LIMB_BITS - 1));
     nmask = ~mask;
     x[NUM_LIMBS_512BIT - 1] &= ((((limb_t)1) << (LIMB_BITS - 1)) - 1);
-    for (posn = 0; posn < NUM_LIMBS_256BIT; ++posn) {
+    for (posn = 0; posn < NUM_LIMBS_256BIT; ++posn)
+    {
         result[posn] = (x[posn] & nmask) | (x[posn + NUM_LIMBS_256BIT] & mask);
     }
 }
@@ -691,29 +745,30 @@ void curve25519_reduce(limb_t far *result, limb_t far *x, uint8_t size)
  * \param result The result array, which must be NUM_LIMBS_256BIT limbs in size.
  * \param x The value to raise.
  */
-void curve25519_pow250(limb_t far *result, const limb_t far *x)
+void curve25519_pow250(limb_t *result, const limb_t *x)
 {
     limb_t t1[NUM_LIMBS_256BIT];
     uint8_t i, j;
 
-    // The big-endian hexadecimal expansion of (2^250 - 1) is:
-    // 03FFFFFF FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF
-    //
-    // The naive implementation needs to do 2 multiplications per 1 bit and
-    // 1 multiplication per 0 bit.  We can improve upon this by creating a
-    // pattern 0000000001 ... 0000000001.  If we square and multiply the
-    // pattern by itself we can turn the pattern into the partial results
-    // 0000000011 ... 0000000011, 0000000111 ... 0000000111, etc.
-    // This averages out to about 1.1 multiplications per 1 bit instead of 2.
+// The big-endian hexadecimal expansion of (2^250 - 1) is:
+// 03FFFFFF FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF
+//
+// The naive implementation needs to do 2 multiplications per 1 bit and
+// 1 multiplication per 0 bit.  We can improve upon this by creating a
+// pattern 0000000001 ... 0000000001.  If we square and multiply the
+// pattern by itself we can turn the pattern into the partial results
+// 0000000011 ... 0000000011, 0000000111 ... 0000000111, etc.
+// This averages out to about 1.1 multiplications per 1 bit instead of 2.
 
-    // Build a pattern of 250 bits in length of repeated copies of 0000000001.
-    #define RECIP_GROUP_SIZE 10
-    #define RECIP_GROUP_BITS 250    // Must be a multiple of RECIP_GROUP_SIZE.
+// Build a pattern of 250 bits in length of repeated copies of 0000000001.
+#define RECIP_GROUP_SIZE 10
+#define RECIP_GROUP_BITS 250 // Must be a multiple of RECIP_GROUP_SIZE.
     curve25519_square(t1, x);
     for (j = 0; j < (RECIP_GROUP_SIZE - 1); ++j)
         curve25519_square(t1, t1);
     curve25519_mul(result, t1, x);
-    for (i = 0; i < ((RECIP_GROUP_BITS / RECIP_GROUP_SIZE) - 2); ++i) {
+    for (i = 0; i < ((RECIP_GROUP_BITS / RECIP_GROUP_SIZE) - 2); ++i)
+    {
         for (j = 0; j < RECIP_GROUP_SIZE; ++j)
             curve25519_square(t1, t1);
         curve25519_mul(result, result, t1);
@@ -723,7 +778,8 @@ void curve25519_pow250(limb_t far *result, const limb_t far *x)
     // the result to "fill in" the gaps in the pattern.
     curve25519_square(t1, result);
     curve25519_mul(result, result, t1);
-    for (j = 0; j < (RECIP_GROUP_SIZE - 2); ++j) {
+    for (j = 0; j < (RECIP_GROUP_SIZE - 2); ++j)
+    {
         curve25519_square(t1, t1);
         curve25519_mul(result, result, t1);
     }
@@ -736,7 +792,7 @@ void curve25519_pow250(limb_t far *result, const limb_t far *x)
  * This cannot be the same array as \a x.
  * \param x The number to compute the reciprocal for.
  */
-void curve25519_recip(limb_t far *result, const limb_t far *x)
+void curve25519_recip(limb_t *result, const limb_t *x)
 {
     // The reciprocal is the same as x ^ (p - 2) where p = 2^255 - 19.
     // The big-endian hexadecimal expansion of (p - 2) is:
@@ -755,11 +811,11 @@ void curve25519_recip(limb_t far *result, const limb_t far *x)
     curve25519_mul(result, result, x);
 }
 
-void curve25519_square(limb_t far *result, const limb_t far *x)
-    {
-        curve25519_mul(result, x, x);
-    }
-    
+void curve25519_square(limb_t *result, const limb_t *x)
+{
+    curve25519_mul(result, x, x);
+}
+
 /**
  * \brief Computes the square root of a number modulo 2^255 - 19.
  *
@@ -775,13 +831,12 @@ void curve25519_square(limb_t far *result, const limb_t far *x)
  * \note This function is not constant time so it should only be used
  * on publicly-known values.
  */
-bool curve25519_sqrt(limb_t far *result, const limb_t far *x)
+bool curve25519_sqrt(limb_t *result, const limb_t *x)
 {
     // sqrt(-1) mod (2^255 - 19).
     static limb_t const numSqrtM1[NUM_LIMBS_256BIT] = {
         LIMB_PAIR(0x4A0EA0B0, 0xC4EE1B27), LIMB_PAIR(0xAD2FE478, 0x2F431806),
-        LIMB_PAIR(0x3DFBD7A7, 0x2B4D0099), LIMB_PAIR(0x4FC1DF0B, 0x2B832480)
-    };
+        LIMB_PAIR(0x3DFBD7A7, 0x2B4D0099), LIMB_PAIR(0x4FC1DF0B, 0x2B832480)};
     limb_t y[NUM_LIMBS_256BIT];
 
     // Algorithm from: http://tools.ietf.org/html/rfc7748
@@ -796,22 +851,22 @@ bool curve25519_sqrt(limb_t far *result, const limb_t far *x)
 
     // Did we get the square root immediately?
     curve25519_square(y, result);
-    if (memcmp(x, y, sizeof(y)) == 0) {
+    if (memcmp(x, y, sizeof(y)) == 0)
+    {
         return true;
     }
 
     // Multiply the result by sqrt(-1) and check again.
     curve25519_mul(result, result, numSqrtM1);
     curve25519_square(y, result);
-    if (memcmp(x, y, sizeof(y)) == 0) {
+    if (memcmp(x, y, sizeof(y)) == 0)
+    {
         return true;
     }
 
     // The number does not have a square root.
     return false;
 }
-
-
 
 static limb_t far x_1[NUM_LIMBS_256BIT];
 static limb_t far x_2[NUM_LIMBS_256BIT];
@@ -847,7 +902,7 @@ static limb_t far CB[NUM_LIMBS_256BIT];
  *
  * \sa dh1(), dh2()
  */
-bool curve25519_eval(uint8_t far result[32], const uint8_t far s[32], const uint8_t far x[32])
+bool curve25519_eval(uint8_t result[32], const uint8_t s[32], const uint8_t x[32])
 {
     uint8_t t;
     uint8_t mask;
@@ -859,16 +914,18 @@ bool curve25519_eval(uint8_t far result[32], const uint8_t far s[32], const uint
 
     // Unpack the "x" argument into the limb representation
     // which also masks off the high bit.  NULL means 9.
-    if (x) {
+    if (x)
+    {
         // x1 = x
         curve25519_unpackLE(x_1, NUM_LIMBS_256BIT, x, 32);
         x_1[NUM_LIMBS_256BIT - 1] &= ((((limb_t)1) << (LIMB_BITS - 1)) - 1);
-    } else {
-        memset(x_1, 0, sizeof(x_1));    // x_1 = 9
+    }
+    else
+    {
+        memset(x_1, 0, sizeof(x_1)); // x_1 = 9
         x_1[0] = 9;
     }
 
-    
     // Check that "x" is within the range of the modulo field.
     // We can do this with a reduction - if there was no borrow
     // then the value of "x" was out of range.  Timing is sensitive
@@ -879,73 +936,57 @@ bool curve25519_eval(uint8_t far result[32], const uint8_t far s[32], const uint
     retval = (bool)(curve25519_reduceQuick(x_1) & 0x01);
 
     // Initialize the other temporary variables.
-    memset(x_2, 0, sizeof(x_2));        // x_2 = 1
-    
+    memset(x_2, 0, sizeof(x_2)); // x_2 = 1
+
     x_2[0] = 1;
-    memset(z_2, 0, sizeof(z_2));        // z_2 = 0
-    memcpy(x_3, x_1, sizeof(x_1));      // x_3 = x
-    memcpy(z_3, x_2, sizeof(x_2));      // z_3 = 1
-    
+    memset(z_2, 0, sizeof(z_2));   // z_2 = 0
+    memcpy(x_3, x_1, sizeof(x_1)); // x_3 = x
+    memcpy(z_3, x_2, sizeof(x_2)); // z_3 = 1
+
     // Iterate over all 255 bits of "s" from the highest to the lowest.
     // We ignore the high bit of the 256-bit representation of "s".
     mask = 0x40;
     sposn = 31;
     swap = 0;
-    for (t = 255; t > 254; --t) {
-        
+    for (t = 255; t > 0; --t)
+    {
+        printf(".");
         // Conditional swaps on entry to this bit but only if we
         // didn't swap on the previous bit.
         select = s[sposn] & mask;
         swap ^= select;
         curve25519_cswap(swap, x_2, x_3);
-        printf("1 %04X\n", (long)x_2[0]);
         curve25519_cswap(swap, z_2, z_3);
-        printf("2 %04X\n", (long)z_2[0]);
         // Evaluate the curve.
-        curve25519_add(A, x_2, z_2);               // A = x_2 + z_2
-        printf("3 %04X\n", (long)A[0]);
-        curve25519_square(AA, A);                  // AA = A^2
-        printf("4 %04X\n", (long)AA[0]);
-        curve25519_sub(B, x_2, z_2);               // B = x_2 - z_2
-        printf("5 %04X\n", (long)B[0]);
-        curve25519_square(BB, B);                  // BB = B^2
-        printf("6 %04X\n", (long)BB[0]);
-        curve25519_sub(E, AA, BB);                 // E = AA - BB
-        printf("7 %04X\n", (long)E[0]);
-        curve25519_add(C, x_3, z_3);               // C = x_3 + z_3
-        printf("8 %04X\n", (long)C[0]);
-        curve25519_sub(D, x_3, z_3);               // D = x_3 - z_3
-        printf("9 %04X\n", (long)D[0]);
-        curve25519_mul(DA, D, A);                  // DA = D * A
-        printf("10 %04X\n", (long)DA[0]);
-        curve25519_mul(CB, C, B);                  // CB = C * B
-        printf("11 %04X\n", (long)CB[0]);
-        curve25519_add(x_3, DA, CB);               // x_3 = (DA + CB)^2
-        printf("12 %04X\n", (long)x_3[0]);
+        curve25519_add(A, x_2, z_2); // A = x_2 + z_2
+        curve25519_square(AA, A);    // AA = A^2
+        curve25519_sub(B, x_2, z_2); // B = x_2 - z_2
+        curve25519_square(BB, B);    // BB = B^2
+        curve25519_sub(E, AA, BB);   // E = AA - BB
+        curve25519_add(C, x_3, z_3); // C = x_3 + z_3
+        curve25519_sub(D, x_3, z_3); // D = x_3 - z_3
+        curve25519_mul(DA, D, A);    // DA = D * A
+        curve25519_mul(CB, C, B);    // CB = C * B
+        curve25519_add(x_3, DA, CB); // x_3 = (DA + CB)^2
         curve25519_square(x_3, x_3);
-        printf("13 %04X\n", (long)x_3[0]);
-        curve25519_sub(z_3, DA, CB);               // z_3 = x_1 * (DA - CB)^2
-        printf("14 %04X\n", (long)DA[0]);
+        curve25519_sub(z_3, DA, CB); // z_3 = x_1 * (DA - CB)^2
         curve25519_square(z_3, z_3);
-        printf("15 %04X\n", (long)z_3[0]);
         curve25519_mul(z_3, z_3, x_1);
-        printf("16 %04X\n", (long)z_3[0]);
-        curve25519_mul(x_2, AA, BB);               // x_2 = AA * BB
-        printf("17 %04X\n", (long)x_2[0]);
-        curve25519_mulA24(z_2, E);                 // z_2 = E * (AA + a24 * E)
-        printf("18 %04X\n", (long)z_2[0]);
+        curve25519_mul(x_2, AA, BB); // x_2 = AA * BB
+        curve25519_mulA24(z_2, E);   // z_2 = E * (AA + a24 * E)
         curve25519_add(z_2, z_2, AA);
-        printf("19 %04X\n", (long)z_2[0]);
         curve25519_mul(z_2, z_2, E);
-        printf("20 %04X\n", (long)z_2[0]);
 
         // Move onto the next lower bit of "s".
         mask >>= 1;
-        if (!mask) {
+        if (!mask)
+        {
             --sposn;
             mask = 0x80;
             swap = select << 7;
-        } else {
+        }
+        else
+        {
             swap = select >> 1;
         }
     }

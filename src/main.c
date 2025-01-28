@@ -113,7 +113,6 @@ void main(void)
 
 
 	chacha20_ietf_init(&rng_ctx, key, nonce);
-	uECC_set_rng(&RNG);
 	doCurve();
 
 	

@@ -1,6 +1,6 @@
 #ifndef _CHACHA20_H_
 #define _CHACHA20_H_
-#include <stdint.h>
+#include <STDINT.H>
 #define CHACHA_ROUNDS 10
 struct chacha20_context
 {

@@ -207,7 +207,7 @@ int printf(char *format, ...)
 }
 */
 
-int sprintf(far char *out, const far char *format, ...)
+int sprintf(far char *out, const char *format, ...)
 {
   long int *varg = (long *)(&format);
   return print(&out, varg);

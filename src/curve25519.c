@@ -432,6 +432,20 @@ void curve25519_mul(limb_t *result, const limb_t *x, const limb_t *y)
     curve25519_reduce(result, temp, NUM_LIMBS_256BIT);
 }
 
+/**
+ * \brief Multiplies a value by the constant 121665 and reduces the result modulo 2^255 - 19.
+ *
+ * \param result The result array, which must be NUM_LIMBS_256BIT limbs in size
+ * and can be the same array as \a x.
+ * \param x The value to multiply, which must be NUM_LIMBS_256BIT limbs in size
+ * and less than 2^255 - 19.
+ *
+ * The function multiplies the input \a x by the constant a24 = 121665, represented
+ * as a limb array, and then reduces the result modulo 2^255 - 19. The multiplication
+ * is performed using a big-number multiplication algorithm, and the intermediate
+ * result is reduced to ensure it is in the valid range for curve25519 operations.
+ */
+
 void curve25519_mulA24(limb_t *result, const limb_t *x)
 {
     // The constant a24 = 121665 (0x1DB41) as a limb array.

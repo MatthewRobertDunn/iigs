@@ -1,10 +1,6 @@
 #ifndef _CURVE26619_H
 #define _CURVE26619_H
 
-#ifdef MODERN_MODE
-#define far
-#endif
-
 #include <STDINT.H>
 #include <STDDEF.H>
 #include <STDBOOL.H>

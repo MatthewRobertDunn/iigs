@@ -37,14 +37,11 @@ void testEval(void){
 
     uint8_t result[32];
 
-    init_mul8_table();
-
         // Fix up the private keys by applying the standard masks.
     alice_private[0] &= 0xF8;
     alice_private[31] = (alice_private[31] & 0x7F) | 0x40;
     bob_private[0] &= 0xF8;
     bob_private[31] = (bob_private[31] & 0x7F) | 0x40;
-
     // Evaluate the curve function and check the public keys.
     printf("Fixed test vectors:\n");
     printf("Computing Alice's public key ... \n");
@@ -56,7 +53,10 @@ void testEval(void){
     }
 }
 
-void main(void)
+int main(void)
 {
+    printf("Precalculating tables\n");
+    init_mul8_table();
     testEval();
+    return 0;
 }

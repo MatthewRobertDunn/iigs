@@ -1,8 +1,5 @@
-#ifdef MODERN_MODE
-#define far
-#endif
 #include "maths.h"
-static uint16_t far mul8[65536];
+static uint16_t mul8[65536];
 
 void init_mul8_table() {
     uint16_t a, b;

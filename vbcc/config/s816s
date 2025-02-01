@@ -1,0 +1,14 @@
+-cc=vbcc65816 -I%%VBCC%%/targets/65816-sim/include -quiet %s -o= %s %s -O=%ld
+-ccv=vbcc65816 -I%%VBCC%%/targets/65816-sim/include %s -o= %s %s -O=%ld
+-unsigned-char
+-mtiny
+-mask-opt
+-as=vasm6502_oldstyle -816 -quiet -nowarn=62 -opt-branch -ldots -Fvobj %s -o %s -ldots
+-asv=vasm6502_oldstyle -816 -nowarn=62 -Fvobj -opt-branch -ldots %s -o %s -ldots
+-rm=del %s
+-rmv=del %s
+-ld=vlink -m -b rawbin1 -nowarn=22 -Cvbcc -T%%VBCC%%/targets/65816-sim/vlinks.cmd -L%%VBCC%%/targets/65816-sim/lib %%VBCC%%/targets/65816-sim/lib/startup.o %s %s -o %s -lvcs
+-ldv=vlink -m -Mmapfile -b rawbin1 -nowarn=22 -Cvbcc -T%%VBCC%%/targets/65816-sim/vlinks.cmd -L%%VBCC%%/targets/65816-sim/lib %%VBCC%%/targets/65816-sim/lib/startup.o %s %s  -o %s -lvcs -Mmapfile
+-l2=vlink -m -b rawbin1 -nowarn=22 -Cvbcc -T%%VBCC%%/targets/65816-sim/vlinks.cmd -L%%VBCC%%/targets/65816-sim/lib %s %s -o %s
+-l2v=vlink -m -Mmapfile -b rawbin1 -nowarn=22 -Cvbcc -T%%VBCC%%/targets/65816-sim/vlinks.cmd -L%%VBCC%%/targets/65816-sim/lib %s %s -o %s -Mmapfile
+

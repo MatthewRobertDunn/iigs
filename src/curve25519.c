@@ -1,12 +1,7 @@
-#ifndef MODERN_MODE
-#pragma section code = curve
-#pragma section data = curvedata
-#else
-#define far
-#endif
-#include <STRING.H>
+#include <string.h>
 #include "curve25519.h"
-#include "printf.h"
+#include <stdio.h>
+#include "maths.h"
 /**
  * \brief Unpacks the little-endian byte representation of a big number
  * into a limb array.
@@ -384,6 +379,9 @@ void curve25519_mulNoReduce(limb_t *result, const limb_t *x, const limb_t *y)
     const limb_t *yy;
     limb_t *rr;
 
+    dlimb_t c;
+
+
     // Multiply the lowest word of x by y.
     carry = 0;
     word = x[0];
@@ -391,7 +389,9 @@ void curve25519_mulNoReduce(limb_t *result, const limb_t *x, const limb_t *y)
     rr = result;
     for (i = 0; i < NUM_LIMBS_256BIT; ++i)
     {
-        carry += ((dlimb_t)(*yy++)) * word;
+        dlimb_t a = ((dlimb_t)(*yy++));
+        dlimb_t c = multiply32_16(a, word);
+        carry += c;
         *rr++ = (limb_t)carry;
         carry >>= LIMB_BITS;
     }
@@ -406,7 +406,9 @@ void curve25519_mulNoReduce(limb_t *result, const limb_t *x, const limb_t *y)
         rr = result + i;
         for (j = 0; j < NUM_LIMBS_256BIT; ++j)
         {
-            carry += ((dlimb_t)(*yy++)) * word;
+            dlimb_t a = ((dlimb_t)(*yy++));
+            dlimb_t c = multiply32_16(a, word);
+            carry += c;
             carry += *rr;
             *rr++ = (limb_t)carry;
             carry >>= LIMB_BITS;
@@ -469,7 +471,9 @@ void curve25519_mulA24(limb_t *result, const limb_t *x)
     limb_t *tt = temp;
     for (i = 0; i < NUM_LIMBS_256BIT; ++i)
     {
-        carry += ((dlimb_t)(*xx++)) * word;
+        dlimb_t a = ((dlimb_t)(*xx++));
+        dlimb_t c = multiply32_16(a, word);
+        carry +=  c;
         *tt++ = (limb_t)carry;
         carry >>= LIMB_BITS;
     }
@@ -484,7 +488,9 @@ void curve25519_mulA24(limb_t *result, const limb_t *x)
         tt = temp + i;
         for (j = 0; j < NUM_LIMBS_256BIT; ++j)
         {
-            carry += ((dlimb_t)(*xx++)) * word;
+            dlimb_t a = ((dlimb_t)(*xx++));
+            dlimb_t c = multiply32_16(a, word);
+            carry +=  c;
             carry += *tt;
             *tt++ = (limb_t)carry;
             carry >>= LIMB_BITS;
@@ -641,7 +647,7 @@ void curve25519_cmove(limb_t select, limb_t *x, const limb_t *y)
  * the size of \a x in limbs.  If it is shorter than NUM_LIMBS_256BIT
  * then the reduction can be performed quicker.
  */
-void curve25519_reduce(limb_t far *result, limb_t far *x, uint8_t size)
+void curve25519_reduce(limb_t *result, limb_t *x, uint8_t size)
 {
     /*
     Note: This explaination is best viewed with a UTF-8 text viewer.
@@ -694,7 +700,9 @@ void curve25519_reduce(limb_t far *result, limb_t far *x, uint8_t size)
     x[NUM_LIMBS_256BIT - 1] &= ((((limb_t)1) << (LIMB_BITS - 1)) - 1);
     for (posn = 0; posn < size; ++posn)
     {
-        carry += ((dlimb_t)(x[posn + NUM_LIMBS_256BIT])) * 38U;
+        dlimb_t a = ((dlimb_t)(x[posn + NUM_LIMBS_256BIT]));
+        dlimb_t c = multiply32_16(a, 38U);
+        carry +=  c;
         carry += x[posn];
         x[posn] = (limb_t)carry;
         carry >>= LIMB_BITS;
@@ -882,21 +890,6 @@ bool curve25519_sqrt(limb_t *result, const limb_t *x)
     return false;
 }
 
-static limb_t far x_1[NUM_LIMBS_256BIT];
-static limb_t far x_2[NUM_LIMBS_256BIT];
-static limb_t far x_3[NUM_LIMBS_256BIT];
-static limb_t far z_2[NUM_LIMBS_256BIT];
-static limb_t far z_3[NUM_LIMBS_256BIT];
-static limb_t far A[NUM_LIMBS_256BIT];
-static limb_t far B[NUM_LIMBS_256BIT];
-static limb_t far C[NUM_LIMBS_256BIT];
-static limb_t far D[NUM_LIMBS_256BIT];
-static limb_t far E[NUM_LIMBS_256BIT];
-static limb_t far AA[NUM_LIMBS_256BIT];
-static limb_t far BB[NUM_LIMBS_256BIT];
-static limb_t far DA[NUM_LIMBS_256BIT];
-static limb_t far CB[NUM_LIMBS_256BIT];
-
 /**
  * \brief Evaluates the raw Curve25519 function.
  *
@@ -925,6 +918,20 @@ bool curve25519_eval(uint8_t result[32], const uint8_t s[32], const uint8_t x[32
     uint8_t swap;
     long k;
     bool retval;
+    limb_t x_1[NUM_LIMBS_256BIT];
+    limb_t x_2[NUM_LIMBS_256BIT];
+    limb_t x_3[NUM_LIMBS_256BIT];
+    limb_t z_2[NUM_LIMBS_256BIT];
+    limb_t z_3[NUM_LIMBS_256BIT];
+    limb_t A[NUM_LIMBS_256BIT];
+    limb_t B[NUM_LIMBS_256BIT];
+    limb_t C[NUM_LIMBS_256BIT];
+    limb_t D[NUM_LIMBS_256BIT];
+    limb_t E[NUM_LIMBS_256BIT];
+    limb_t AA[NUM_LIMBS_256BIT];
+    limb_t BB[NUM_LIMBS_256BIT];
+    limb_t DA[NUM_LIMBS_256BIT];
+    limb_t CB[NUM_LIMBS_256BIT];
 
     // Unpack the "x" argument into the limb representation
     // which also masks off the high bit.  NULL means 9.

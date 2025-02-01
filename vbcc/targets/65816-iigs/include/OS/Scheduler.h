@@ -1,0 +1,24 @@
+/********************************************
+; File: Scheduler.h
+;
+;
+; Copyright Apple Computer, Inc.1986-89
+; All Rights Reserved
+;
+********************************************/
+#ifndef __TYPES__
+#include <Types.h>
+#endif
+
+#ifndef __SCHEDULER__
+#define __SCHEDULER__
+
+extern pascal void SchBootInit () inline(0x0107,dispatcher);
+extern pascal void SchStartUp () inline(0x0207,dispatcher);
+extern pascal void SchShutDown () inline(0x0307,dispatcher);
+extern pascal Word SchVersion () inline(0x0407,dispatcher);
+extern pascal void SchReset () inline(0x0507,dispatcher);
+extern pascal Boolean SchStatus () inline(0x0607,dispatcher);
+extern pascal Boolean SchAddTask () inline(0x0907,dispatcher);
+extern pascal void SchFlush () inline(0x0A07,dispatcher);
+#endif

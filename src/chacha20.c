@@ -1,9 +1,4 @@
-#ifndef MODERN_MODE
-#pragma section code = chacha20
-#pragma section data = chacha20data
-#endif
 #include "chacha20.h"
-
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
 

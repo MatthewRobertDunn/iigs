@@ -1,0 +1,87 @@
+/********************************************
+; File: LineEdit.h
+;
+;
+; Copyright Apple Computer, Inc.1986-89
+; All Rights Reserved
+;
+********************************************/
+#ifndef __TYPES__
+#include <Types.h>
+#endif
+
+#ifndef __QUICKDRAW__
+#include <Quickdraw.h>
+#endif
+
+#ifndef __EVENT__
+#include <Event.h>
+#endif
+
+#ifndef __LINEEDIT__
+#define __LINEEDIT__
+
+#define leDupStrtUpErr 0x1401 /*error - duplicate LEStartup call */
+#define leResetErr 0x1402 /*error - can't reset Line Edit */
+#define leNotActiveErr 0x1403 /*error - Line Edit not active */
+#define leScrapErr 0x1404 /*error - desk scrap too big to copy */
+#define leJustLeft 0x0000 /*Justification -  */
+#define leJustCenter 0x0001 /*Justification -  */
+#define leJustFill 0x0002 /*Justification -  */
+#define leJustRight 0xFFFF /*Justification -  */
+struct LERec {
+   Handle leLineHandle; /*  */
+   Word leLength; /*  */
+   Word leMaxLength; /*  */
+   Rect leDestRect; /*  */
+   Rect leViewRect; /*  */
+   GrafPortPtr lePort; /*  */
+   Word leLineHite; /*  */
+   Word leBaseHite; /*  */
+   Word leSelStart; /*  */
+   Word leSelEnd; /*  */
+   Word leActFlg; /*  */
+   Word leCarAct; /*  */
+   Word leCarOn; /*  */
+   LongWord leCarTime; /*  */
+   VoidProcPtr leHiliteHook; /*  */
+   VoidProcPtr leCaretHook; /*  */
+   Word leJust; /*  */
+   Word lePWChar; /*  */
+} ;
+typedef struct LERec LERec, *LERecPtr, **LERecHndl;
+extern pascal void LEBootInit() inline(0x0114,dispatcher);
+extern pascal void LEStartUp() inline(0x0214,dispatcher);
+extern pascal void LEShutDown() inline(0x0314,dispatcher);
+extern pascal Word LEVersion() inline(0x0414,dispatcher);
+extern pascal void LEReset() inline(0x0514,dispatcher);
+extern pascal Boolean LEStatus() inline(0x0614,dispatcher);
+extern pascal void LEActivate() inline(0x0F14,dispatcher);
+extern pascal void LEClick() inline(0x0D14,dispatcher);
+extern pascal void LECopy() inline(0x1314,dispatcher);
+extern pascal void LECut() inline(0x1214,dispatcher);
+extern pascal void LEDeactivate() inline(0x1014,dispatcher);
+extern pascal void LEDelete() inline(0x1514,dispatcher);
+extern pascal void LEDispose() inline(0x0A14,dispatcher);
+extern pascal void LEFromScrap() inline(0x1914,dispatcher);
+extern pascal Word LEGetScrapLen() inline(0x1C14,dispatcher);
+extern pascal Handle LEGetTextHand() inline(0x2214,dispatcher);
+extern pascal Word LEGetTextLen() inline(0x2314,dispatcher);
+extern pascal void LEIdle() inline(0x0C14,dispatcher);
+extern pascal void LEInsert() inline(0x1614,dispatcher);
+extern pascal void LEKey() inline(0x1114,dispatcher);
+extern pascal LERecHndl LENew() inline(0x0914,dispatcher);
+extern pascal void LEPaste() inline(0x1414,dispatcher);
+extern pascal Handle LEScrapHandle() inline(0x1B14,dispatcher);
+extern pascal void LESetCaret() inline(0x1F14,dispatcher);
+extern pascal void LESetHilite() inline(0x1E14,dispatcher);
+extern pascal void LESetJust() inline(0x2114,dispatcher);
+extern pascal void LESetScrapLen() inline(0x1D14,dispatcher);
+extern pascal void LESetSelect() inline(0x0E14,dispatcher);
+extern pascal void LESetText() inline(0x0B14,dispatcher);
+extern pascal void LETextBox() inline(0x1814,dispatcher);
+extern pascal void LETextBox2() inline(0x2014,dispatcher);
+extern pascal void LEToScrap() inline(0x1A14,dispatcher);
+extern pascal void LEUpdate() inline(0x1714,dispatcher);
+extern pascal Pointer GetLEDefProc() inline(0x2414,dispatcher);
+#endif

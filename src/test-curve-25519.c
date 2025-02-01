@@ -80,7 +80,7 @@ void main(void)
 	uint8_t randomByte;
 	int * foo = 0;
     uint32_t a = 0xFFFFFFFF;
-    uint16_t b = 0;
+    uint16_t b = 1234;
     uint32_t result;
 
 	//__TLStartUp();

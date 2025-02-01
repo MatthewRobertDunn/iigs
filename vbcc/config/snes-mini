@@ -1,0 +1,14 @@
+-cc=vbcc65816 -mtiny -I%%VBCC%%/targets/65816-snes/include -quiet %s -o= %s %s -O=%ld
+-ccv=vbcc65816 -mtiny -I%%VBCC%%/targets/65816-snes/include %s -o= %s %s -O=%ld
+-unsigned-char
+-mask-opt
+-snes-muldiv
+-as=vasm6502_oldstyle -816 -quiet -nowarn=62 -opt-branch -ldots -Fvobj %s -o %s -ldots
+-asv=vasm6502_oldstyle -816 -nowarn=62 -Fvobj -opt-branch -ldots %s -o %s -ldots
+-rm=del %s
+-rmv=del %s
+-ld=vlink -m -b rawbin1 -Cvbcc -nowarn=22 -T%%VBCC%%/targets/65816-snes/vlink-mini.cmd -L%%VBCC%%/targets/65816-snes/lib %%VBCC%%/targets/65816-snes/lib/startup-mini.o %s %s -o %s -lvcs
+-ldv=vlink -m -Mmapfile -b rawbin1 -Cvbcc -nowarn=22 -T%%VBCC%%/targets/65816-snes/vlink-mini.cmd -L%%VBCC%%/targets/65816-snes/lib %%VBCC%%/targets/65816-snes/lib/startup-mini.o %s %s  -o %s -lvcs -Mmapfile
+-l2=vlink -m -b rawbin1 -Cvbcc -nowarn=22 -T%%VBCC%%/targets/65816-snes/vlink-mini.cmd -L%%VBCC%%/targets/65816-snes/lib %s %s -o %s
+-l2v=vlink -m -Mmapfile -b rawbin1 -Cvbcc -nowarn=22 -T%%VBCC%%/targets/65816-snes/vlink-mini.cmd -L%%VBCC%%/targets/65816-snes/lib %s %s -o %s -Mmapfile
+

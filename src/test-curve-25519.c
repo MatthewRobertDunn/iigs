@@ -6,7 +6,7 @@ void setPalette(int colorNum, int red, int green, int blue);
 #include "text.h"
 #include "chacha20.h"
 #include <string.h>
-
+#include "maths.h"
 uint8_t key[] = "58994083179912377936593775884845";
 uint8_t nonce[] = "468133307134";
 
@@ -79,6 +79,10 @@ void main(void)
 	char **testMemory;
 	uint8_t randomByte;
 	int * foo = 0;
+    uint32_t a = 0xFFFFFFFF;
+    uint16_t b = 0;
+    uint32_t result;
+
 	//__TLStartUp();
 
 	// enable super high res mode, maybe
@@ -99,6 +103,15 @@ void main(void)
 	}
 
 	printf("Starting\n");
+    printf("Create LUT\n");
+    init_mul8_table();
+    printf("OK");
+
+    result = multiply32_16(a, b);
+    printf("Result: %X\n", result);
+    result = a * b;
+    printf("Result: %X\n", result);
+    
 
 
 	chacha20_ietf_init(&rng_ctx, key, nonce);

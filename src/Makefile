@@ -18,8 +18,8 @@ startup.obj: startup.c
 main.obj: test-curve-25519.c 
 	$(CC) $(CFLAGS) test-curve-25519.c -o main.obj
 
-out.omf: startup.obj main.obj text.obj printf.obj chacha20.obj fastscroll.obj curve25519.obj
-	$(LD) -L $(LIB)  -l cl -X startup.obj main.obj text.obj printf.obj chacha20.obj fastscroll.obj curve25519.obj
+out.omf: startup.obj main.obj text.obj printf.obj chacha20.obj fastscroll.obj curve25519.obj maths.obj
+	$(LD) -L $(LIB)  -l cl -X startup.obj main.obj text.obj printf.obj chacha20.obj fastscroll.obj curve25519.obj maths.obj
 
 text.obj: text.c font.h
 	$(CC) $(CFLAGS) text.c
@@ -38,6 +38,12 @@ fastscroll.obj: fastscroll.c fastscroll.h
 	
 curve25519.obj: curve25519.c curve25519.h
 	$(CC) $(SAFECFLAGS) curve25519.c	
+
+maths.obj: maths.c maths.h
+	$(CC) $(NOCFLAGS) maths.c		
+
+native-tests.exe: native-tests.c curve25519.c maths.c
+	gcc native-tests.c curve25519.c maths.c -DMODERN_MODE=1 -o native-tests.exe	
 
 
 #shit.obj: shit.c

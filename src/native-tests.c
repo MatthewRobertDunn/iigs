@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "curve25519.h"
+#include "maths.h"
 void testEval(void){
     static uint8_t alice_private[32] = {
         0x77, 0x07, 0x6d, 0x0a, 0x73, 0x18, 0xa5, 0x7d,
@@ -35,6 +36,8 @@ void testEval(void){
     };
 
     uint8_t result[32];
+
+    init_mul8_table();
 
         // Fix up the private keys by applying the standard masks.
     alice_private[0] &= 0xF8;

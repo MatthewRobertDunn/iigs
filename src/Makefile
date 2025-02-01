@@ -3,7 +3,7 @@ CC=WDC816CC
 LD=wdclink
 CAD=cadius
 CFLAGS= -i ../include/ -MK -ML -SF -SI -SP -SS
-SAFECFLAGS= -i ../include/ -MK -ML -SF -SI -SS
+SAFECFLAGS= -i ../include/ -MK -ML -SF -SI -S0
 LIB= ../lib/
 
 all: mydisk.po
@@ -40,7 +40,7 @@ curve25519.obj: curve25519.c curve25519.h
 	$(CC) $(SAFECFLAGS) curve25519.c	
 
 maths.obj: maths.c maths.h
-	$(CC) $(NOCFLAGS) maths.c		
+	$(CC) $(SAFECFLAGS) maths.c		
 
 native-tests.exe: native-tests.c curve25519.c maths.c
 	gcc native-tests.c curve25519.c maths.c -DMODERN_MODE=1 -o native-tests.exe	

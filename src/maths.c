@@ -2,8 +2,6 @@
 #define far
 #endif
 #include "maths.h"
-#include <stdint.h>
-
 static uint16_t far mul8[65536];
 
 void init_mul8_table() {

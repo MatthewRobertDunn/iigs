@@ -56,3 +56,20 @@ uint32_t multiply32_16(uint32_t a, uint16_t b) {
     // p31 contributes to bits 32–39, which are beyond the 32-bit result
     return result;
 }
+
+uint16_t multiply16_8(uint16_t a, uint8_t b) {
+    uint16_t a0 = a & 0xFF;      // Extract lower 8 bits of 'a'
+    uint16_t a1 = (a >> 8) & 0xFF; // Extract higher 8 bits of 'a'
+
+    // Perform the multiplications of 8-bit components, using the lookup table
+    uint16_t p0 = mul8[(a0 << 8) | b]; // a0 * b
+    uint16_t p1 = mul8[(a1 << 8) | b]; // a1 * b
+
+    // Accumulate the result in a 16-bit variable
+    uint16_t result = p0; // Start with p0 (no shift needed)
+
+    // Add p1 (shifted by 8 bits) to the result
+    result += (uint16_t)p1 << 8;
+
+    return result;
+}

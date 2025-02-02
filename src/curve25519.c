@@ -2,6 +2,10 @@
 #include "curve25519.h"
 #include <stdio.h>
 #include "maths.h"
+//#define MULT(x, y) ((x)*(y))
+#define MULT(x, y) multiply32_16(x, y)
+//#define MULT(x, y) multiply16_8(x, y)
+
 /**
  * \brief Unpacks the little-endian byte representation of a big number
  * into a limb array.
@@ -390,7 +394,7 @@ void curve25519_mulNoReduce(limb_t *result, const limb_t *x, const limb_t *y)
     for (i = 0; i < NUM_LIMBS_256BIT; ++i)
     {
         dlimb_t a = ((dlimb_t)(*yy++));
-        dlimb_t c = multiply32_16(a, word);
+        dlimb_t c = MULT(a, word);
         carry += c;
         *rr++ = (limb_t)carry;
         carry >>= LIMB_BITS;
@@ -407,7 +411,7 @@ void curve25519_mulNoReduce(limb_t *result, const limb_t *x, const limb_t *y)
         for (j = 0; j < NUM_LIMBS_256BIT; ++j)
         {
             dlimb_t a = ((dlimb_t)(*yy++));
-            dlimb_t c = multiply32_16(a, word);
+            dlimb_t c = MULT(a, word);
             carry += c;
             carry += *rr;
             *rr++ = (limb_t)carry;
@@ -472,7 +476,7 @@ void curve25519_mulA24(limb_t *result, const limb_t *x)
     for (i = 0; i < NUM_LIMBS_256BIT; ++i)
     {
         dlimb_t a = ((dlimb_t)(*xx++));
-        dlimb_t c = multiply32_16(a, word);
+        dlimb_t c = MULT(a, word);
         carry +=  c;
         *tt++ = (limb_t)carry;
         carry >>= LIMB_BITS;
@@ -489,7 +493,7 @@ void curve25519_mulA24(limb_t *result, const limb_t *x)
         for (j = 0; j < NUM_LIMBS_256BIT; ++j)
         {
             dlimb_t a = ((dlimb_t)(*xx++));
-            dlimb_t c = multiply32_16(a, word);
+            dlimb_t c = MULT(a, word);
             carry +=  c;
             carry += *tt;
             *tt++ = (limb_t)carry;
@@ -701,7 +705,7 @@ void curve25519_reduce(limb_t *result, limb_t *x, uint8_t size)
     for (posn = 0; posn < size; ++posn)
     {
         dlimb_t a = ((dlimb_t)(x[posn + NUM_LIMBS_256BIT]));
-        dlimb_t c = multiply32_16(a, 38U);
+        dlimb_t c = MULT(a, 38U);
         carry +=  c;
         carry += x[posn];
         x[posn] = (limb_t)carry;

@@ -1,6 +1,5 @@
 #pragma section code = printf
 #pragma section data = printfdata
-
 void _putchar(char character, unsigned char color);
 
 static void printchar(char **str, int c)

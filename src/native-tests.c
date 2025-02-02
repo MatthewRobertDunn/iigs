@@ -57,6 +57,11 @@ int main(void)
 {
     printf("Precalculating tables\n");
     init_mul8_table();
+    uint16_t a = 1234;
+    uint8_t b = 0xF0;
+    uint16_t c = multiply16_8(a, b);
+    printf("%04x * %02x = %04x should be %04x\n", a, b, c, (uint16_t)( a * b));
+
     testEval();
     return 0;
 }

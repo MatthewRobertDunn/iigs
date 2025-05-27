@@ -26,7 +26,7 @@ uint32_t multiply32_16(uint32_t a, uint16_t b) {
     uint16_t p20 = mul8[a2 | b0]; // a2 * b0
     uint16_t p21 = mul8[a2 | b1]; // a2 * b1
     uint16_t p30 = mul8[a3 | b0]; // a3 * b0
-    uint16_t p31 = mul8[a3 | b1]; // a3 * b1
+    //uint16_t p31 = mul8[a3 | b1]; // a3 * b1
 
 
     uint32_t lo    = (uint32_t)p00;

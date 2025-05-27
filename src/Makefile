@@ -12,6 +12,7 @@ all: mydisk.po
 clean:
 	rm -f *.o
 	rm -f *.omf
+	rm -f native-tests.exe
 
 out.omf: hello.c chacha20.o blake2s.o curve25519.o maths.o
 	$(CC) $(CFLAGS) native-tests.c chacha20.o blake2s.o curve25519.o maths.o -o out.omf

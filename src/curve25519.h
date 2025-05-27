@@ -10,25 +10,9 @@
 #define BIGNUMBER_LIMB_16BIT 1
 
 // Define the limb types to use on this platform.
-#if BIGNUMBER_LIMB_8BIT
-typedef uint8_t limb_t;
-typedef int8_t slimb_t;
-typedef uint16_t dlimb_t;
-#elif BIGNUMBER_LIMB_16BIT
 typedef uint16_t limb_t;
 typedef int16_t slimb_t;
 typedef uint32_t dlimb_t;
-#elif BIGNUMBER_LIMB_32BIT
-typedef uint32_t limb_t;
-typedef int32_t slimb_t;
-typedef uint64_t dlimb_t;
-#elif BIGNUMBER_LIMB_64BIT
-typedef uint64_t limb_t;
-typedef int64_t slimb_t;
-typedef unsigned __int128 dlimb_t;
-#else
-#error "limb_t must be 8, 16, 32, or 64 bits in size"
-#endif
 
 // Number of limbs in a big number value of various sizes.
 #define NUM_LIMBS_BITS(n) \
@@ -39,24 +23,9 @@ typedef unsigned __int128 dlimb_t;
 
 // The number of bits in a limb.
 #define LIMB_BITS (8 * sizeof(limb_t))
-
-#if BIGNUMBER_LIMB_8BIT
-#define LIMB(value) ((uint8_t)(value)),         \
-                    ((uint8_t)((value) >> 8)),  \
-                    ((uint8_t)((value) >> 16)), \
-                    ((uint8_t)((value) >> 24))
-#define LIMB_PAIR(x, y) LIMB((x)), LIMB((y))
-#elif BIGNUMBER_LIMB_16BIT
 #define LIMB(value) ((uint16_t)(value)), \
                     ((uint16_t)(((uint32_t)(value)) >> 16))
 #define LIMB_PAIR(x, y) LIMB((x)), LIMB((y))
-#elif BIGNUMBER_LIMB_32BIT
-#define LIMB(value) (value)
-#define LIMB_PAIR(x, y) LIMB((x)), LIMB((y))
-#elif BIGNUMBER_LIMB_64BIT
-#define LIMB(value) (value)
-#define LIMB_PAIR(x, y) ((((uint64_t)(y)) << 32) | ((uint64_t)(x)))
-#endif
 
 void curve25519_unpackLE(limb_t *limbs, size_t count, const uint8_t *bytes, size_t len);
 void curve25519_packLE(uint8_t *bytes, size_t len, const limb_t *limbs, size_t count);

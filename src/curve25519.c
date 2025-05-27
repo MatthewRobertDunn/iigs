@@ -2,9 +2,10 @@
 #include "curve25519.h"
 #include <stdio.h>
 #include "maths.h"
-//#define MULT(x, y) ((x)*(y))
+// #define MULT(x, y) ((x)*(y))
 #define MULT(x, y) multiply32_16(x, y)
-//#define MULT(x, y) multiply16_8(x, y)
+
+// #define MULT(x, y) multiply16_8(x, y)
 
 /**
  * \brief Unpacks the little-endian byte representation of a big number
@@ -23,17 +24,6 @@
  */
 void curve25519_unpackLE(limb_t *limbs, size_t count, const uint8_t *bytes, size_t len)
 {
-#if BIGNUMBER_LIMB_8BIT
-    if (len < count)
-    {
-        memcpy(limbs, bytes, len);
-        memset(limbs + len, 0, count - len);
-    }
-    else
-    {
-        memcpy(limbs, bytes, count);
-    }
-#elif CRYPTO_LITTLE_ENDIAN
     count *= sizeof(limb_t);
     if (len < count)
     {
@@ -44,94 +34,6 @@ void curve25519_unpackLE(limb_t *limbs, size_t count, const uint8_t *bytes, size
     {
         memcpy(limbs, bytes, count);
     }
-#elif BIGNUMBER_LIMB_16BIT
-    while (count > 0 && len >= 2)
-    {
-        *limbs++ = ((limb_t)(bytes[0])) |
-                   (((limb_t)(bytes[1])) << 8);
-        bytes += 2;
-        --count;
-        len -= 2;
-    }
-    if (count > 0 && len == 1)
-    {
-        *limbs++ = ((limb_t)(bytes[0]));
-        --count;
-    }
-    while (count > 0)
-    {
-        *limbs++ = 0;
-        --count;
-    }
-#elif BIGNUMBER_LIMB_32BIT
-    while (count > 0 && len >= 4)
-    {
-        *limbs++ = ((limb_t)(bytes[0])) |
-                   (((limb_t)(bytes[1])) << 8) |
-                   (((limb_t)(bytes[2])) << 16) |
-                   (((limb_t)(bytes[3])) << 24);
-        bytes += 4;
-        --count;
-        len -= 4;
-    }
-    if (count > 0 && len > 0)
-    {
-        if (len == 3)
-        {
-            *limbs++ = ((limb_t)(bytes[0])) |
-                       (((limb_t)(bytes[1])) << 8) |
-                       (((limb_t)(bytes[2])) << 16);
-        }
-        else if (len == 2)
-        {
-            *limbs++ = ((limb_t)(bytes[0])) |
-                       (((limb_t)(bytes[1])) << 8);
-        }
-        else
-        {
-            *limbs++ = ((limb_t)(bytes[0]));
-        }
-        --count;
-    }
-    while (count > 0)
-    {
-        *limbs++ = 0;
-        --count;
-    }
-#elif BIGNUMBER_LIMB_64BIT
-    while (count > 0 && len >= 8)
-    {
-        *limbs++ = ((limb_t)(bytes[0])) |
-                   (((limb_t)(bytes[1])) << 8) |
-                   (((limb_t)(bytes[2])) << 16) |
-                   (((limb_t)(bytes[3])) << 24) |
-                   (((limb_t)(bytes[4])) << 32) |
-                   (((limb_t)(bytes[5])) << 40) |
-                   (((limb_t)(bytes[6])) << 48) |
-                   (((limb_t)(bytes[7])) << 56);
-        bytes += 8;
-        --count;
-        len -= 8;
-    }
-    if (count > 0 && len > 0)
-    {
-        limb_t word = 0;
-        uint8_t shift = 0;
-        while (len > 0 && shift < 64)
-        {
-            word |= (((limb_t)(*bytes++)) << shift);
-            shift += 8;
-            --len;
-        }
-        *limbs++ = word;
-        --count;
-    }
-    while (count > 0)
-    {
-        *limbs++ = 0;
-        --count;
-    }
-#endif
 }
 
 /**
@@ -153,17 +55,6 @@ void curve25519_unpackLE(limb_t *limbs, size_t count, const uint8_t *bytes, size
 void curve25519_packLE(uint8_t *bytes, size_t len,
                        const limb_t *limbs, size_t count)
 {
-#if BIGNUMBER_LIMB_8BIT
-    if (len <= count)
-    {
-        memcpy(bytes, limbs, len);
-    }
-    else
-    {
-        memcpy(bytes, limbs, count);
-        memset(bytes + count, 0, len - count);
-    }
-#elif CRYPTO_LITTLE_ENDIAN
     count *= sizeof(limb_t);
     if (len <= count)
     {
@@ -174,93 +65,6 @@ void curve25519_packLE(uint8_t *bytes, size_t len,
         memcpy(bytes, limbs, count);
         memset(bytes + count, 0, len - count);
     }
-#elif BIGNUMBER_LIMB_16BIT
-    limb_t word;
-    while (count > 0 && len >= 2)
-    {
-        word = *limbs++;
-        bytes[0] = (uint8_t)word;
-        bytes[1] = (uint8_t)(word >> 8);
-        --count;
-        len -= 2;
-        bytes += 2;
-    }
-    if (count > 0 && len == 1)
-    {
-        bytes[0] = (uint8_t)(*limbs);
-        --len;
-        ++bytes;
-    }
-    memset(bytes, 0, len);
-#elif BIGNUMBER_LIMB_32BIT
-    limb_t word;
-    while (count > 0 && len >= 4)
-    {
-        word = *limbs++;
-        bytes[0] = (uint8_t)word;
-        bytes[1] = (uint8_t)(word >> 8);
-        bytes[2] = (uint8_t)(word >> 16);
-        bytes[3] = (uint8_t)(word >> 24);
-        --count;
-        len -= 4;
-        bytes += 4;
-    }
-    if (count > 0)
-    {
-        if (len == 3)
-        {
-            word = *limbs;
-            bytes[0] = (uint8_t)word;
-            bytes[1] = (uint8_t)(word >> 8);
-            bytes[2] = (uint8_t)(word >> 16);
-            len -= 3;
-            bytes += 3;
-        }
-        else if (len == 2)
-        {
-            word = *limbs;
-            bytes[0] = (uint8_t)word;
-            bytes[1] = (uint8_t)(word >> 8);
-            len -= 2;
-            bytes += 2;
-        }
-        else if (len == 1)
-        {
-            bytes[0] = (uint8_t)(*limbs);
-            --len;
-            ++bytes;
-        }
-    }
-    memset(bytes, 0, len);
-#elif BIGNUMBER_LIMB_64BIT
-    limb_t word;
-    while (count > 0 && len >= 8)
-    {
-        word = *limbs++;
-        bytes[0] = (uint8_t)word;
-        bytes[1] = (uint8_t)(word >> 8);
-        bytes[2] = (uint8_t)(word >> 16);
-        bytes[3] = (uint8_t)(word >> 24);
-        bytes[4] = (uint8_t)(word >> 32);
-        bytes[5] = (uint8_t)(word >> 40);
-        bytes[6] = (uint8_t)(word >> 48);
-        bytes[7] = (uint8_t)(word >> 56);
-        --count;
-        len -= 8;
-        bytes += 8;
-    }
-    if (count > 0)
-    {
-        word = *limbs;
-        while (len > 0)
-        {
-            *bytes++ = (uint8_t)word;
-            word >>= 8;
-            --len;
-        }
-    }
-    memset(bytes, 0, len);
-#endif
 }
 
 /**
@@ -385,7 +189,6 @@ void curve25519_mulNoReduce(limb_t *result, const limb_t *x, const limb_t *y)
 
     dlimb_t c;
 
-
     // Multiply the lowest word of x by y.
     carry = 0;
     word = x[0];
@@ -455,15 +258,8 @@ void curve25519_mul(limb_t *result, const limb_t *x, const limb_t *y)
 void curve25519_mulA24(limb_t *result, const limb_t *x)
 {
     // The constant a24 = 121665 (0x1DB41) as a limb array.
-#if BIGNUMBER_LIMB_8BIT
-    static limb_t const a24[3] = {0x41, 0xDB, 0x01};
-#elif BIGNUMBER_LIMB_16BIT
     static limb_t const a24[2] = {0xDB41, 0x0001};
-#elif BIGNUMBER_LIMB_32BIT || BIGNUMBER_LIMB_64BIT
-    static limb_t const a24[1] = {0x0001DB41};
-#else
-#error "limb_t must be 8, 16, 32, or 64 bits in size"
-#endif
+
 #define NUM_A24_LIMBS (sizeof(a24) / sizeof(limb_t))
 
     // Multiply the lowest limb of a24 by x and zero-extend into the result.
@@ -477,7 +273,7 @@ void curve25519_mulA24(limb_t *result, const limb_t *x)
     {
         dlimb_t a = ((dlimb_t)(*xx++));
         dlimb_t c = MULT(a, word);
-        carry +=  c;
+        carry += c;
         *tt++ = (limb_t)carry;
         carry >>= LIMB_BITS;
     }
@@ -494,7 +290,7 @@ void curve25519_mulA24(limb_t *result, const limb_t *x)
         {
             dlimb_t a = ((dlimb_t)(*xx++));
             dlimb_t c = MULT(a, word);
-            carry +=  c;
+            carry += c;
             carry += *tt;
             *tt++ = (limb_t)carry;
             carry >>= LIMB_BITS;
@@ -706,7 +502,7 @@ void curve25519_reduce(limb_t *result, limb_t *x, uint8_t size)
     {
         dlimb_t a = ((dlimb_t)(x[posn + NUM_LIMBS_256BIT]));
         dlimb_t c = MULT(a, 38U);
-        carry +=  c;
+        carry += c;
         carry += x[posn];
         x[posn] = (limb_t)carry;
         carry >>= LIMB_BITS;

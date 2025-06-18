@@ -22,9 +22,9 @@ WRCARDRAM equ $E0C005         ; Write to auxiliary memory
         STA >RDCARDRAM          ; Reads from bank $00 to go bank $01
         REP #$20
 
-        LDA #($2000+$FF)       ;start 0XFF bytes from the start of video memory, stack pointer decrements every time.
+        LDA #($2000+$FF)       ; Set start address offset by 0xFF for initial stack pointer
 START:
-        TCS                    ;Start stack at top of screen
+        TCS                    ; Transfer to stack pointer; stack will decrement from here during PEI
 
         CLC
         ADC #(($08*$A0)-$FF)    ;Start copying from 0x08 rows * 0xA0 bytes per line down.
